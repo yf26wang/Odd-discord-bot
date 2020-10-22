@@ -2,7 +2,6 @@ require('dotenv').config();
 const Discord= require('discord.js');
 const client= new Discord.Client();
 const TOKEN = process.env.TOKEN;
-client.login(TOKEN);
 client.commands= new Discord.Collection();
 
 client.on('ready', ()=>{
@@ -45,3 +44,4 @@ client.on('message', (msg)=>{
     allXp[sender]+=5;
 }
 });
+client.login(TOKEN);

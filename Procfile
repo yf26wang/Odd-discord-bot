@@ -1,1 +1,2 @@
-worker: node index.js
+web: echo ""
+service: npm start
