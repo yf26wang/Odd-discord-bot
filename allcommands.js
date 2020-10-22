@@ -72,6 +72,14 @@ commands= {
         }
     },
     graph:require('./graph.js'),
+    volcan:{
+        name:'whatisvolcandoing',
+        usage:'whatisvolcandoing',
+        argsRequired:0,
+        code(msg,args){
+            msg.channel.send('volcan is trolling');
+        }
+    },
     helpCommand:{
         name:'help',
         argsRequired:'any',
