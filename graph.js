@@ -2,7 +2,7 @@ const { DiscordAPIError } = require('discord.js');
 
 module.exports = {
     name: 'graph',
-    argsRequired: 'any',
+    argsRequired: 1,
     code(msg, args) {
         const eq = args[0].replace('y=', '').trim();
         const start = parseFloat(args[1]) || -10;

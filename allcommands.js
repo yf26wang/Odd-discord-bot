@@ -72,6 +72,8 @@ commands= {
         }
     },
     graph:require('./graph.js'),
+    storeImage:require('./storeimage.js'),
+    getImage:require('./getimage'),
     volcan:{
         name:'whatisvolcandoing',
         usage:'whatisvolcandoing',
