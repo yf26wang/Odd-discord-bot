@@ -7,8 +7,9 @@ module.exports = {
         //import {imgs} from './index.js';
         const sqlite3 = require('sqlite3');
         const storedimgs = new sqlite3.Database('./storedimgs.sqlite');
+        const serverId=msg.guild.id;
         let imgUrl = 0;
-        storedimgs.get(`SELECT * FROM imgs WHERE name='${args[0]}';`, (err, row) => {
+        storedimgs.get(`SELECT * FROM imgs WHERE id='${serverId+args[0]}';`, (err, row) => {
             if (err)
                 console.log(e);
             else {
