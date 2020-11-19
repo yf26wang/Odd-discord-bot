@@ -19,7 +19,7 @@ module.exports={
         argsRequired:'any',
         status:true,
         code(msg,args){
-            if(args)
+            if(args[0])
             {
             const min=Math.ceil(args[0]);
             const max=Math.floor(args[1])
