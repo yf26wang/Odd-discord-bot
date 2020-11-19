@@ -3,7 +3,7 @@ commands= {
         name: 'rank',
         description:"",
         usage:'rank',
-        status:true,
+        status:false,
         argsRequired:0,
         code(msg,args){
             msg.channel.send('ranks');
@@ -108,7 +108,7 @@ commands= {
                 }*/
                 cmds.map((cmd)=>{
                     cmd=cmd.name;
-                    returnMsg+=`!${cmd}\n`;
+                    returnMsg+=`-${cmd}\n`;
                 });
                 rsps.map((response)=>{
                     response=response.name;

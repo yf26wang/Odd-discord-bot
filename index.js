@@ -4,7 +4,7 @@ const client= new Discord.Client();
 const TOKEN = process.env.TOKEN;
 client.commands= new Discord.Collection();
 client.responses= new Discord.Collection();
-const PREFIX='!';
+const PREFIX='-';
 const sqlite3=require('sqlite3');
 const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
 
@@ -60,7 +60,7 @@ client.on('message', (msg)=>{
             currentCommand.code(msg,args);
             }
             else
-            msg.channel.send(`Usage: ${currentCommand.usage}\n For more details, use ${PREFIX}help ${currentCommand.name}.`);
+            msg.channel.send(`Usage: ${currentCommand.usage}\nFor more details, use ${PREFIX}help ${currentCommand.name}.`);
         }
         catch(e){
             msg.channel.send('error');
