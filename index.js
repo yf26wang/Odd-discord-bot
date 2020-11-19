@@ -3,6 +3,7 @@ const Discord= require('discord.js');
 const client= new Discord.Client();
 const TOKEN = process.env.TOKEN;
 client.commands= new Discord.Collection();
+client.responses= new Discord.Collection();
 const PREFIX='!';
 const sqlite3=require('sqlite3');
 const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
@@ -14,11 +15,17 @@ client.on('ready', ()=>{
     }
     console.log('ready');
 });
+//load commands
 const commands=require('./allcommands.js');;
-
+const responses=require('./noprefixcommands.js');
 //const commandNameArray= Object.keys(commands);
 for(let command in commands){
+    if(commands[command].status===true)
     client.commands.set(commands[command].name,commands[command]);
+}
+for(let response in responses){
+    if(responses[response].status===true)
+    client.responses.set(responses[response].name,responses[response]);
 }
 const allXp=require('./allXp');
 client.on('message', (msg)=>{
@@ -27,6 +34,20 @@ client.on('message', (msg)=>{
     return;
     const args=msg.content.split(' ');
     let commandName=args.shift();
+    if(client.responses.has(commandName))
+    {
+        try{
+        const currentResponse=client.responses.get(commandName);
+        if(currentResponse.argsRequired===args.length||currentResponse.argsRequired==='any')
+        {
+            currentResponse.code(msg,args);
+        }
+        }
+        catch(e)
+        {
+            msg.channel.send('error');
+        }
+    }
     if(commandName.charAt(0)!=PREFIX)
     return;
     commandName=commandName.substring(1);
@@ -39,7 +60,7 @@ client.on('message', (msg)=>{
             currentCommand.code(msg,args);
             }
             else
-            msg.channel.send(`Usage: ${currentCommand.usage}\n For more details, use help ${currentCommand.name}.`);
+            msg.channel.send(`Usage: ${currentCommand.usage}\n For more details, use ${PREFIX}help ${currentCommand.name}.`);
         }
         catch(e){
             msg.channel.send('error');

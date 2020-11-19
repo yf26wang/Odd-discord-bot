@@ -1,7 +1,9 @@
 commands= {
     rank:{
         name: 'rank',
+        description:"",
         usage:'rank',
+        status:true,
         argsRequired:0,
         code(msg,args){
             msg.channel.send('ranks');
@@ -9,7 +11,9 @@ commands= {
     },
     avatar:{
         name:'avatar',
+        description:"",
         usage:'avatar <user mention>',
+        status:true,
         argsRequired:1,
         code(msg,args){
             const userMention=msg.mentions.users.first();
@@ -19,7 +23,9 @@ commands= {
     },
     icon:{
         name:'icon',
+        description:"",
         usage:'icon',
+        status:true,
         argsRequired:0,
         code(msg,args){
             const iconUrl=msg.guild.iconURL();
@@ -31,19 +37,23 @@ commands= {
     },
     banner:{
         name:'banner',
+        description:"",
         usage:'banner',
+        status:true,
         argsRequired:0,
         code(msg,args){
             const bannerUrl=msg.guild.bannerURL();
             if(bannerUrl===null)
-            msg.channel.send('null');
+            msg.channel.send('No banner found.');
             else
             msg.channel.send(bannerUrl);
         }
     },
     sprite:{
         name:'sprite',
+        description:"",
         usage:'sprite <type> <name>',
+        status:true,
         argsRequired:2,
         code(msg,args){
             let type=args[0];
@@ -72,21 +82,18 @@ commands= {
         }
     },
     graph:require('./graph.js'),
-    storeImage:require('./storeimage.js'),
-    getImage:require('./getimage'),
-    volcan:{
-        name:'whatisvolcandoing',
-        usage:'whatisvolcandoing',
-        argsRequired:0,
-        code(msg,args){
-            msg.channel.send('volcan is trolling');
-        }
-    },
+    storeImage:require('./imagestorage.js').storeImage,
+    getImage:require('./imagestorage.js').getImage,
+    coinflip:require('./randcommands.js').coinflip,
+    randNum:require('./randcommands.js').randNum,
     helpCommand:{
         name:'help',
+        description:"",
         argsRequired:'any',
+        status:true,
         code(msg,args){
             let cmds=msg.client.commands;
+            let rsps=msg.client.responses;
             if(args.length===0)
             {
                 let returnMsg='Available commands: \n';
@@ -101,8 +108,12 @@ commands= {
                 }*/
                 cmds.map((cmd)=>{
                     cmd=cmd.name;
-                    returnMsg+=`-${cmd}\n`;
+                    returnMsg+=`!${cmd}\n`;
                 });
+                rsps.map((response)=>{
+                    response=response.name;
+                    returnMsg+=`${response}\n`;
+                })
                 //console.log(cmds.rank);
                 //returnMsg+=cmds.join(', \n');
                 msg.channel.send(returnMsg);
