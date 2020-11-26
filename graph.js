@@ -4,7 +4,7 @@ module.exports = {
     name: 'graph',
     description:"",
     usage:'graph <function>',
-    argsRequired: 1,
+    argsRequired: [1],
     status:true,
     code(msg, args) {
         const eq = args[0].replace('y=', '').trim();

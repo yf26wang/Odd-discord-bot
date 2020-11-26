@@ -38,7 +38,7 @@ client.on('message', (msg)=>{
     {
         try{
         const currentResponse=client.responses.get(commandName);
-        if(currentResponse.argsRequired===args.length||currentResponse.argsRequired==='any')
+        if(currentResponse.argsRequired.includes(args.length)||currentResponse.argsRequired.includes('any'))
         {
             currentResponse.code(msg,args);
         }
@@ -55,7 +55,7 @@ client.on('message', (msg)=>{
     {
         try{
             const currentCommand=client.commands.get(commandName);
-            if(currentCommand.argsRequired===args.length||currentCommand.argsRequired==='any')
+            if(currentCommand.argsRequired.includes(args.length)||currentCommand.argsRequired.includes('any'))
             {
             currentCommand.code(msg,args);
             }

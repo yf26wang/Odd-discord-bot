@@ -4,7 +4,7 @@ commands= {
         description:"",
         usage:'rank',
         status:false,
-        argsRequired:0,
+        argsRequired:[0],
         code(msg,args){
             msg.channel.send('ranks');
         }
@@ -14,7 +14,7 @@ commands= {
         description:"",
         usage:'avatar <user mention>',
         status:true,
-        argsRequired:1,
+        argsRequired:[1],
         code(msg,args){
             const userMention=msg.mentions.users.first();
             const avatarUrl=userMention.displayAvatarURL({size:1024});
@@ -26,7 +26,7 @@ commands= {
         description:"",
         usage:'icon',
         status:true,
-        argsRequired:0,
+        argsRequired:[0],
         code(msg,args){
             const iconUrl=msg.guild.iconURL();
             if(iconUrl===null)
@@ -40,7 +40,7 @@ commands= {
         description:"",
         usage:'banner',
         status:true,
-        argsRequired:0,
+        argsRequired:[0],
         code(msg,args){
             const bannerUrl=msg.guild.bannerURL();
             if(bannerUrl===null)
@@ -54,7 +54,7 @@ commands= {
         description:"",
         usage:'sprite <type> <name>',
         status:true,
-        argsRequired:2,
+        argsRequired:[2],
         code(msg,args){
             let type=args[0];
             let name=args[1];
@@ -89,7 +89,7 @@ commands= {
     helpCommand:{
         name:'help',
         description:"",
-        argsRequired:'any',
+        argsRequired:[0,1],
         status:true,
         code(msg,args){
             let cmds=msg.client.commands;

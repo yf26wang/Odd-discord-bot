@@ -5,7 +5,7 @@ const storeImage ={
     description:"",
     usage:'store <identifier> <image url>',
     status:false,
-    argsRequired:2,
+    argsRequired:[2],
     code(msg,args){
         const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
         const imgName=args[0];
@@ -30,7 +30,7 @@ const getImage = {
     description:"",
     usage: 'img <identifier>',
     status:false,
-    argsRequired: 1,
+    argsRequired: [1],
     code(msg, args) {
         //import {imgs} from './index.js';
         const storedimgs = new sqlite3.Database('./storedimgs.sqlite');
