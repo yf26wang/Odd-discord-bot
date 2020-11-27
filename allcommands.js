@@ -10,6 +10,7 @@ commands= {
         }
     },
     avatar:{
+        //gets user avatar/profile picture
         name:'avatar',
         description:"",
         usage:'avatar <user mention>',
@@ -22,6 +23,7 @@ commands= {
         }
     },
     icon:{
+        //gets server icon
         name:'icon',
         description:"",
         usage:'icon',
@@ -36,6 +38,7 @@ commands= {
         }
     },
     banner:{
+        //gets server banner
         name:'banner',
         description:"",
         usage:'banner',
@@ -94,6 +97,7 @@ commands= {
         code(msg,args){
             let cmds=msg.client.commands;
             let rsps=msg.client.responses;
+            //lists all commands
             if(args.length===0)
             {
                 let returnMsg='Available commands: \n';
@@ -118,6 +122,7 @@ commands= {
                 //returnMsg+=cmds.join(', \n');
                 msg.channel.send(returnMsg);
             }
+            //help for specific command
             else
             {
                 let cmd=cmds.get(args[0]);

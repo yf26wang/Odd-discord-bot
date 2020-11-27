@@ -10,6 +10,7 @@ module.exports={
         code(msg,args){
             const result=Math.random()<=0.5 ? 'Heads':'Tails';
             let embed= new Discord.MessageEmbed();
+            //sends embed with image of heads and tails respectively
             if(result==='Heads')
             embed.setImage('https://cdn.discordapp.com/attachments/765721453160300545/779592380831367168/H6WtnHh0lbUwAAAAAElFTkSuQmCC.png');
             else
@@ -25,7 +26,7 @@ module.exports={
         argsRequired:[0,2],
         status:true,
         code(msg,args){
-            console.log(args.length);
+            //random number between range provided
             if(args.length!==0)
             {
             const min=Math.ceil(args[0]);
@@ -34,6 +35,7 @@ module.exports={
             const result=Math.floor(Math.random()*(range+1))+min;
             msg.channel.send(result);
             }
+            //random number between 0 and 10
             else
             {
                 const result=Math.floor(Math.random()*10)+1;

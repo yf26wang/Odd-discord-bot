@@ -7,10 +7,12 @@ const storeImage ={
     status:false,
     argsRequired:[2],
     code(msg,args){
+        //declaring variables
         const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
         const imgName=args[0];
         const imgUrl=args[1];
         const serverId=msg.guild.id;
+        //insert new row into database, checks to see if command is called from a sever
         if(serverId)
         storedimgs.run(`INSERT INTO imgs VALUES('${serverId+imgName}','${imgName}','${imgUrl}');`,(err)=>{
             if(err)
@@ -36,6 +38,7 @@ const getImage = {
         const storedimgs = new sqlite3.Database('./storedimgs.sqlite');
         const serverId=msg.guild.id;
         let imgUrl;
+        //gets the image from the database
         storedimgs.get(`SELECT * FROM imgs WHERE id='${serverId+args[0]}';`, (err, row) => {
             if (err)
                 console.log(e);

@@ -1,13 +1,17 @@
+//declaring and importing
 require('dotenv').config();
 const Discord= require('discord.js');
 const client= new Discord.Client();
 const TOKEN = process.env.TOKEN;
 client.commands= new Discord.Collection();
 client.responses= new Discord.Collection();
+/*client.timestamps= new Discord.Collection();
+client.results=new Discord.Collection();*/
 const PREFIX='-';
 const sqlite3=require('sqlite3');
 const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
 
+//ready event
 client.on('ready', ()=>{
     if((storedimgs.get("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='imgs';"))==0)
     {
@@ -15,6 +19,7 @@ client.on('ready', ()=>{
     }
     console.log('ready');
 });
+
 //load commands
 const commands=require('./allcommands.js');;
 const responses=require('./noprefixcommands.js');
@@ -27,13 +32,20 @@ for(let response in responses){
     if(responses[response].status===true)
     client.responses.set(responses[response].name,responses[response]);
 }
+/*for(let command in serverCommands){
+    if(serverCommands[command].status===true)
+    client.commands.set(serverCommands[command].name,serverCommands[command]);
+}*/
 const allXp=require('./allXp');
+
+//handle commands and responses
 client.on('message', (msg)=>{
     const sender=msg.author.tag;
     if(sender===client.user.tag)
     return;
     const args=msg.content.split(' ');
     let commandName=args.shift();
+    //responses
     if(client.responses.has(commandName))
     {
         try{
@@ -48,6 +60,7 @@ client.on('message', (msg)=>{
             msg.channel.send('error');
         }
     }
+    //commands
     if(commandName.charAt(0)!=PREFIX)
     return;
     commandName=commandName.substring(1);
