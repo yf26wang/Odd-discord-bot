@@ -1,5 +1,5 @@
 const { DiscordAPIError } = require('discord.js');
-
+const mathjs=require('mathjs');
 module.exports = {
     name: 'graph',
     description:"",
@@ -8,27 +8,33 @@ module.exports = {
     status:true,
     code(msg, args) {
         //calculate x values of data points based on user input
-        const eq = args[0].replace('y=', '').trim();
-        const start = parseFloat(args[1]) || -10;
-        const end = parseFloat(args[2]) || 10;
+        const eq = args[0];
+        let start = parseFloat(args[1]);
+        if(!start&&start!=0)
+        start=-10;
+        let end = parseFloat(args[2]);
+        if(!end&&end!=0)
+        end=10;
         const pointsNum = 51;
         const pointSpace = (end - start)/(pointsNum-1);
         const data = [];
         //evalutes equation for each x value
+        let point={x:0,y:0};
         for (let i = 0; i < pointsNum; i++) {
-            let x = start + i * pointSpace;
-            console.log(eq);
-            let y= Math.round(eval(eq)*1000)/1000;
-            x=Math.round(x*1000)/1000;
-            data.push({ x: x, y: y });
+            point.x = start + i * pointSpace;
+            mathjs.evaluate(eq,point);
+            point.x=Math.round(point.x*1000)/1000;
+            point.y=Math.round(point.y*1000)/1000;
+            data.push({ x: point.x, y: point.y });
         }
+        const urlEq=eq.replace('+', '%2B');
         //generates graph object
         var Chart = require('chart.js');
         graph = {
             type: 'line',
             data: {
                 datasets: [{
-                    label: eq,
+                    label: urlEq,
                     fill: false,
                     pointRadius: 0,
                     data: data
@@ -38,7 +44,7 @@ module.exports = {
             options: {
                 title: {
                     display: true,
-                    text: args[0],
+                    text: urlEq,
                     fontSize:32
                 },
                 scales: {
@@ -84,7 +90,7 @@ module.exports = {
         };
         //converts graph object to url
         let graphUrl = JSON.stringify(graph);//.replace(/"/g, '');
-        console.log(graphUrl);
+        //console.log(graphUrl);
         graphUrl = `https://quickchart.io/chart?bkg=white&devicePixelRatio=1.0&w=800&h=600&c=${graphUrl}`;
         //sends graph image url in an embed
         const Discord = require('discord.js');
