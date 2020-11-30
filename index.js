@@ -59,6 +59,7 @@ client.on('message', (msg)=>{
         {
             msg.channel.send('error');
         }
+        return;
     }
     //commands
     if(commandName.charAt(0)!=PREFIX)
@@ -79,7 +80,15 @@ client.on('message', (msg)=>{
             msg.channel.send('error');
             console.log(e);
         }
+        return;
     }
+    const emote= msg.guild.emojis.cache.find((emote)=>{
+        return emote.name===commandName;
+    });
+    //console.log(msg.guild.emojis.cache);
+    console.log(emote);
+    if(emote)
+    msg.channel.send(`<:${emote.name}:${emote.id}>`);
     /*xp and lvling
     if(allXp[sender]===undefined)
     allXp[sender]=0;
