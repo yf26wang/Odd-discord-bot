@@ -82,16 +82,18 @@ client.on('message', (msg)=>{
         }
         return;
     }
+
+    if(msg.guild){
     let emote= msg.guild.emojis.cache.find((emote)=>{
         return emote.name===commandName;
     });
     let emoteMsg="";
     if(emote){
+        msg.channel.send(msg.member.displayName+':');
         if(emote.animated)
         emoteMsg+=`<a:${emote.name}:${emote.id}>`;
         else
         emoteMsg+=`<:${emote.name}:${emote.id}>`;
-    }
     for(let i=0;i<args.length;i++){
         if(args[i].charAt(0)==='-'){
             args[i]=args[i].substring(1);
@@ -99,6 +101,10 @@ client.on('message', (msg)=>{
                 return emote.name===args[i];
             });
             if(emote){
+                if(!msg.deleted){
+                msg.delete();
+                msg.deleted=true;
+                }
                 if(emote.animated)
                 emoteMsg+=`<a:${emote.name}:${emote.id}>`;
                 else
@@ -106,7 +112,9 @@ client.on('message', (msg)=>{
             }
         }
     }
+}
     msg.channel.send(emoteMsg);
+}
     /*xp and lvling
     if(allXp[sender]===undefined)
     allXp[sender]=0;
