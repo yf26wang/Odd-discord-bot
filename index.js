@@ -87,8 +87,12 @@ client.on('message', (msg)=>{
     });
     //console.log(msg.guild.emojis.cache);
     console.log(emote);
-    if(emote)
-    msg.channel.send(`<:${emote.name}:${emote.id}>`);
+    if(emote){
+        if(emote.animated)
+        msg.channel.send(`<a:${emote.name}:${emote.id}>`);
+        else
+        msg.channel.send(`<:${emote.name}:${emote.id}>`);
+    }
     /*xp and lvling
     if(allXp[sender]===undefined)
     allXp[sender]=0;
