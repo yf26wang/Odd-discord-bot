@@ -82,17 +82,31 @@ client.on('message', (msg)=>{
         }
         return;
     }
-    const emote= msg.guild.emojis.cache.find((emote)=>{
+    let emote= msg.guild.emojis.cache.find((emote)=>{
         return emote.name===commandName;
     });
-    //console.log(msg.guild.emojis.cache);
-    console.log(emote);
+    let emoteMsg="";
     if(emote){
         if(emote.animated)
-        msg.channel.send(`<a:${emote.name}:${emote.id}>`);
+        emoteMsg+=`<a:${emote.name}:${emote.id}>`;
         else
-        msg.channel.send(`<:${emote.name}:${emote.id}>`);
+        emoteMsg+=`<:${emote.name}:${emote.id}>`;
     }
+    for(let i=0;i<args.length;i++){
+        if(args[i].charAt(0)==='-'){
+            args[i]=args[i].substring(1);
+            emote= msg.guild.emojis.cache.find((emote)=>{
+                return emote.name===args[i];
+            });
+            if(emote){
+                if(emote.animated)
+                emoteMsg+=`<a:${emote.name}:${emote.id}>`;
+                else
+                emoteMsg+=`<:${emote.name}:${emote.id}>`;
+            }
+        }
+    }
+    msg.channel.send(emoteMsg);
     /*xp and lvling
     if(allXp[sender]===undefined)
     allXp[sender]=0;
