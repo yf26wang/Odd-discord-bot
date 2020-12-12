@@ -89,6 +89,10 @@ client.on('message', (msg)=>{
     });
     let emoteMsg="";
     if(emote){
+        if(!msg.deleted){
+            msg.delete();
+            msg.deleted=true;
+            }
         msg.channel.send(msg.member.displayName+':');
         if(emote.animated)
         emoteMsg+=`<a:${emote.name}:${emote.id}>`;
@@ -101,10 +105,6 @@ client.on('message', (msg)=>{
                 return emote.name===args[i];
             });
             if(emote){
-                if(!msg.deleted){
-                msg.delete();
-                msg.deleted=true;
-                }
                 if(emote.animated)
                 emoteMsg+=`<a:${emote.name}:${emote.id}>`;
                 else
