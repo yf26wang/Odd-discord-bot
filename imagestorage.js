@@ -99,7 +99,8 @@ const imglist={
     argsRequired:[0],
     code(msg,args){
         let list='List of images stored:';
-        db.query('SELECT * FROM imgs',(err,res)=>{
+        const serverId=msg.guild.id;
+        db.query('SELECT * FROM imgs WHERE id LIKE $1',[`${serverId}%`],(err,res)=>{
             if(err)
             console.log(err);
             else{

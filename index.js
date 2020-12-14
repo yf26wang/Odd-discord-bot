@@ -39,6 +39,7 @@ client.on('ready', ()=>{
 //load commands
 const commands=require('./allcommands.js');;
 const responses=require('./noprefixcommands.js');
+//const serverCommands=require('./servercommands.js');
 //const commandNameArray= Object.keys(commands);
 for(let command in commands){
     if(commands[command].status===true)
