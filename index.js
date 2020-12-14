@@ -8,15 +8,31 @@ client.responses= new Discord.Collection();
 /*client.timestamps= new Discord.Collection();
 client.results=new Discord.Collection();*/
 const PREFIX='-';
-const sqlite3=require('sqlite3');
-const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
+//const sqlite3=require('sqlite3');
+//const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
+
+const {Client}=require('pg');
+const db=new Client({
+    connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+db.connect();
+
 
 //ready event
 client.on('ready', ()=>{
-    if((storedimgs.get("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='imgs';"))==0)
+    db.query("CREATE TABLE IF NOT EXISTS imgs(id TEXT PRIMARY KEY, name TEXT, url TEXT);",(error,response)=>{
+        if(error)
+        console.log(error);
+        else
+        console.log(response);
+    })
+    /*if((storedimgs.get("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='imgs';"))==0)
     {
         storedimgs.run("CREATE TABLE imgs(id TEXT PRIMARY KEY, name TEXT, url TEXT);")
-    }
+    }*/
     console.log('ready');
 });
 

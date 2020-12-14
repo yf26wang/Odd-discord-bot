@@ -87,6 +87,8 @@ commands= {
     graph:require('./graph.js'),
     storeImage:require('./imagestorage.js').storeImage,
     getImage:require('./imagestorage.js').getImage,
+    deleteImage:require('./imagestorage.js').deleteImage,
+    imglist:require('./imagestorage.js').imglist,
     coinflip:require('./randcommands.js').coinflip,
     randNum:require('./randcommands.js').randNum,
     helpCommand:{
