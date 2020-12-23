@@ -1,13 +1,6 @@
 const Discord = require('discord.js');
 //const sqlite3=require('sqlite3');
-const {Client}=require('pg');
-const db=new Client({
-    connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-db.connect();
+const db=require('./database.js');
 const storeImage ={
     name:'store',
     description:"",
@@ -100,7 +93,7 @@ const imglist={
     code(msg,args){
         let list='List of images stored:';
         const serverId=msg.guild.id;
-        db.query('SELECT * FROM imgs WHERE id LIKE $1',[`${serverId}%`],(err,res)=>{
+        db.query('SELECT * FROM imgs WHERE id LIKE $1;',[`${serverId}%`],(err,res)=>{
             if(err)
             console.log(err);
             else{

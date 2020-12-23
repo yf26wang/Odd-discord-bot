@@ -5,25 +5,24 @@ const client= new Discord.Client();
 const TOKEN = process.env.TOKEN;
 client.commands= new Discord.Collection();
 client.responses= new Discord.Collection();
-/*client.timestamps= new Discord.Collection();
-client.results=new Discord.Collection();*/
+client.cooldowns= new Discord.Collection();
+client.results=new Discord.Collection();
 const PREFIX='-';
 //const sqlite3=require('sqlite3');
 //const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
 
-const {Client}=require('pg');
-const db=new Client({
-    connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-db.connect();
+const db=require('./database.js');
 
 
 //ready event
 client.on('ready', ()=>{
     db.query("CREATE TABLE IF NOT EXISTS imgs(id TEXT PRIMARY KEY, name TEXT, url TEXT);",(error,response)=>{
+        if(error)
+        console.log(error);
+        else
+        console.log(response);
+    })
+    db.query("CREATE TABLE IF NOT EXISTS points(id TEXT PRIMARY KEY, name TEXT, points INTEGER);",(error,response)=>{
         if(error)
         console.log(error);
         else

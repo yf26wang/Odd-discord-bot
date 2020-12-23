@@ -91,6 +91,10 @@ commands= {
     imglist:require('./imagestorage.js').imglist,
     coinflip:require('./randcommands.js').coinflip,
     randNum:require('./randcommands.js').randNum,
+    claimPoints:require('./pointscommands.js').claimPoints,
+    viewPoints:require('./pointscommands.js').viewPoints,
+    roulette:require('./pointscommands.js').roulette,
+    leaderboard:require('./pointscommands.js').leaderboard,
     helpCommand:{
         name:'help',
         description:"",
