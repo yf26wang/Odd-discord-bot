@@ -1,11 +1,13 @@
 const { DiscordAPIError } = require("discord.js");
 const Discord=require('discord.js');
 const { re } = require("mathjs");
+const PREFIX=process.env.PREFIX;
 module.exports={
     claimPoints:{
         name:'claim',
-        description:'Claims points(options: daily, hourly, 5min)',
-        usage:'claim <type>',
+        description:'Claims points',
+        usage:'claim <type>\nValid types: daily, hourly, 5min',
+        category:'Points',
         status:true,
         argsRequired:[1],
         code(msg,args){
@@ -25,7 +27,7 @@ module.exports={
             const timestamps=msg.client.cooldowns.get(this.name);
             if(type==='daily'){
                 fullCooldown=86400000;
-                points=3000;
+                points=1000;
             }
             else if(type==='hourly'){
                 fullCooldown=3600000;
@@ -33,14 +35,14 @@ module.exports={
             }
             else if(type==='5min'){
                 fullCooldown=300000;
-                points=5;
+                points=10;
             }
             else{
                 msg.channel.send('Invalid claim type.(use daily, hourly or 5min)');
                 return;
             }
-            if(timestamps.has(msg.author.id+type)){
-                const timestamp=timestamps.get(msg.author.id+type)
+            if(timestamps.has(`${serverId}&${msg.author.id+type}`)){
+                const timestamp=timestamps.get(`${serverId}&${msg.author.id+type}`);
                 if(currentTime.getTime()-timestamp<fullCooldown){
                     const cooldown= Math.round((fullCooldown-(currentTime.getTime()-timestamp))/1000);
                     const cooldownSeconds=cooldown%(60);
@@ -81,7 +83,7 @@ module.exports={
                                 msg.channel.send('no rows');
                                 msg.channel.send('error');
                             }
-                            timestamps.set(msg.author.id+type,currentTime);
+                            timestamps.set(`${serverId}&${msg.author.id+type}`,currentTime);
                         }
                         
                     });
@@ -109,23 +111,33 @@ module.exports={
                             }
                         
                     }
-                    timestamps.set(msg.author.id+type,currentTime);
+                    timestamps.set(`${serverId}&${msg.author.id+type}`,currentTime);
                 })
             }
         }
     },
     viewPoints:{
         name:'points',
-        description:'Displays how many points you currently have.',
-        usage:'points',
+        description:'Displays how many points someone currently has',
+        usage:`points <tagged user (optional)>\n(e.g. ${PREFIX}points or ${PREFIX}points @someone)`,
+        category:'Points',
         status:true,
-        argsRequired:[0],
+        argsRequired:[0,1],
         code(msg,args){
-            const guildName=msg.member.displayName;
+            //const guildName=msg.member.displayName;
             const serverId=msg.guild.id;
-            const userId=msg.author.id;
+            let userId;
+            let guildName;
+            if(args.length!==0){
+            userId=msg.mentions.users.first().id;
+            guildName=msg.mentions.members.get(userId).displayName;
+            }
+            else{
+                userId=msg.author.id;
+                guildName=msg.member.displayName;
+            }
             const db=require('./database.js');
-            db.query('SELECT points FROM points WHERE id=$1',[`${serverId}&${userId}`],(err,res)=>{
+            db.query('SELECT name,points FROM points WHERE id=$1',[`${serverId}&${userId}`],(err,res)=>{
                 if(err)
                 console.log(err);
                 else{
@@ -142,7 +154,8 @@ module.exports={
     roulette:{
         name:'roulette',
         description:'Plays roulette with a chance to double inputted points or lose them',
-        usage:'roulette <points/all>',
+        usage:`roulette <# of points/all>\n(e.g. ${PREFIX}roulette 100 or ${PREFIX}roulette all)`,
+        category:'Points',
         status:true,
         argsRequired:[1],
         code(msg,args){
@@ -217,8 +230,9 @@ module.exports={
     },
     leaderboard:{
         name:'leaderboard',
-        description:'',
-        usage:'leaderboard <entires(optional>',
+        description:'Displays leaderboard of server members with most number of points',
+        usage:'leaderboard <entires (optional)>\nNumber of entries shown on the leaderboard can be specified (0-25), default entries shown is 10',
+        category:'Points',
         status:true,
         argsRequired:[0,1],
         code(msg,args){
@@ -229,7 +243,7 @@ module.exports={
             entries=10;
             else if(entries>25)
             entries=25;
-            db.query('SELECT * FROM points WHERE id LIKE $1 ORDER BY points DESC LIMIT $2',[`${serverId}%`,`${entries}`],(err,res)=>{
+            db.query('SELECT * FROM points WHERE id LIKE $1 ORDER BY points DESC LIMIT $2',[`${serverId}%`,`${entries}`], async (err,res)=>{
                 if(err)
                 console.log(err);
                 else{
@@ -245,8 +259,17 @@ module.exports={
                         if(res.rowCount>0){
                         const firstRowId=res.rows[0].id;
                         const firstplaceId=firstRowId.substring(firstRowId.indexOf('&')+1);
-                        const firstplace=msg.client.users.cache.get(firstplaceId);
-                        const firstplaceAvatar=firstplace.displayAvatarURL();
+                        let firstplace;
+                        let firstplaceAvatar
+                        try{
+                        firstplace= await msg.guild.members.fetch(firstplaceId);
+                        firstplace= firstplace.user;
+                        firstplaceAvatar=firstplace.displayAvatarURL();
+                        }
+                        catch(err){
+                            console.log(err);
+                            firstplaceAvatar='';
+                        }
                         footer={
                             text:`${res.rows[0].name} currently has the most points`,
                             icon_url:firstplaceAvatar,

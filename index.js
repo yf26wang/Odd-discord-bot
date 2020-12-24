@@ -7,7 +7,7 @@ client.commands= new Discord.Collection();
 client.responses= new Discord.Collection();
 client.cooldowns= new Discord.Collection();
 client.results=new Discord.Collection();
-const PREFIX='-';
+const PREFIX=process.env.PREFIX;
 //const sqlite3=require('sqlite3');
 //const storedimgs=new sqlite3.Database('./storedimgs.sqlite');
 
@@ -115,7 +115,7 @@ client.on('message', (msg)=>{
         else
         emoteMsg+=`<:${emote.name}:${emote.id}>`;
     for(let i=0;i<args.length;i++){
-        if(args[i].charAt(0)==='-'){
+        if(args[i].charAt(0)===PREFIX){
             args[i]=args[i].substring(1);
             emote= msg.guild.emojis.cache.find((emote)=>{
                 return emote.name===args[i];
@@ -128,8 +128,8 @@ client.on('message', (msg)=>{
             }
         }
     }
-}
     msg.channel.send(emoteMsg);
+}
 }
     /*xp and lvling
     if(allXp[sender]===undefined)

@@ -2,8 +2,9 @@ const { DiscordAPIError } = require('discord.js');
 const mathjs=require('mathjs');
 module.exports = {
     name: 'graph',
-    description:"",
-    usage:'graph <function>',
+    description:"Graphs the provided function (function must be expressed with x and y)",
+    usage:'graph <function> <start (optional)> <end (optional)>\n(e.g. -graph y=3x^2+3x+2)',
+    category:'Math',
     argsRequired: [1,3],
     status:true,
     code(msg, args) {

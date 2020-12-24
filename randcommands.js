@@ -3,8 +3,9 @@ const Discord=require('discord.js')
 module.exports={
     coinflip:{
         name:'coinflip',
-        description:"",
+        description:"Flips a coin",
         usage:'coinflip',
+        category:'Random',
         argsRequired:[0],
         status:true,
         code(msg,args){
@@ -21,8 +22,9 @@ module.exports={
     },
     randNum:{
         name:'randNum',
-        description:"",
-        usage:'randNum <min(optional> <max(optional)>',
+        description:"Gives a random number(integer) in the given range.",
+        usage:'randNum <min (optional> <max (optional)>\nThe range can be specified by putting the minimum and maximum number of the range (if no range is provided, the number will be between 0 and 10)\n(e.g. -randNum or -randNum -100 100)',
+        category:'Random',
         argsRequired:[0,2],
         status:true,
         code(msg,args){

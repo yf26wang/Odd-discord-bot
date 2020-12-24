@@ -1,8 +1,11 @@
+const Discord = require('discord.js');
+const PREFIX= process.env.PREFIX;
 commands= {
     rank:{
         name: 'rank',
-        description:"",
+        description:"ranks",
         usage:'rank',
+        category:'Basic',
         status:false,
         argsRequired:[0],
         code(msg,args){
@@ -12,8 +15,9 @@ commands= {
     avatar:{
         //gets user avatar/profile picture
         name:'avatar',
-        description:"",
-        usage:'avatar <user mention>',
+        description:"Gets the tagged user's avatar/profile picture",
+        usage:'avatar <user mention>\n(e.g. avatar @someone)',
+        category:'Basic',
         status:true,
         argsRequired:[1],
         code(msg,args){
@@ -25,8 +29,9 @@ commands= {
     icon:{
         //gets server icon
         name:'icon',
-        description:"",
+        description:"Gets the server icon",
         usage:'icon',
+        category:'Basic',
         status:true,
         argsRequired:[0],
         code(msg,args){
@@ -40,8 +45,9 @@ commands= {
     banner:{
         //gets server banner
         name:'banner',
-        description:"",
+        description:"Gets the server banner",
         usage:'banner',
+        category:'Basic',
         status:true,
         argsRequired:[0],
         code(msg,args){
@@ -54,8 +60,9 @@ commands= {
     },
     sprite:{
         name:'sprite',
-        description:"",
-        usage:'sprite <type> <name>',
+        description:"Gets the indicated rotmg sprite",
+        usage:`sprite <type> <name>\n(e.g. ${PREFIX}sprite Enemies Dreadstump_the_Pirate_King)\nValid types: Abilites, Armor, Characters, Classes, Consumable, Enemies, Environment, Misc_items, Pets, Projectiles, Rings, Skins, Status_Effects, Untiered, Weapons, Wiki Misc, (_type)`,
+        category:'Misc',
         status:true,
         argsRequired:[2],
         code(msg,args){
@@ -65,7 +72,6 @@ commands= {
             name=name.replace(/_/g,'%20');
             const spriteUrl='https://static.drips.pw/rotmg/wiki/'+type+'/'+name+'.png';
             //msg.channel.send(spriteUrl);
-            const Discord = require('discord.js');
             let embed = new Discord.MessageEmbed();
             embed.setImage(spriteUrl);
             msg.channel.send(embed);
@@ -97,7 +103,8 @@ commands= {
     leaderboard:require('./pointscommands.js').leaderboard,
     helpCommand:{
         name:'help',
-        description:"",
+        description:"Provides information on commands and their usage",
+        category:'Basic',
         argsRequired:[0,1],
         status:true,
         code(msg,args){
@@ -106,39 +113,84 @@ commands= {
             //lists all commands
             if(args.length===0)
             {
-                let returnMsg='Available commands: \n';
+                let embed=new Discord.MessageEmbed();
+                embed.setTitle('Available commands');
+                let groups={};
+                cmds.forEach((cmd)=>{
+                    if(cmd.category){
+                    if(!(groups[(cmd.category)])){
+                        groups[(cmd.category)]=[];
+                    }
+                    groups[cmd.category].push(PREFIX+cmd.name);
+                }
+                else{
+                    if(!(groups['Other'])){
+                        groups['Other']=[];
+                    }
+                    groups['Other'].push(PREFIX+cmd.name);
+                }
+                });
+                rsps.forEach((cmd)=>{
+                    if(cmd.category){
+                    if(!(groups[(cmd.category)])){
+                        groups[(cmd.category)]=[];
+                    }
+                    groups[cmd.category].push(cmd.name);
+                }
+                else{
+                    if(!(groups['Other'])){
+                        groups['Other']=[];
+                    }
+                    groups['Other'].push(cmd.name);
+                }
+                });
+                for(let group in groups ){
+                    let list='';
+                    groups[group].forEach((element)=>{
+                        list+=element+' ';
+                    });
+                    embed.addField(group,list);
+                }
+                embed.setColor(0xf84343);
+                /*let client= msg.client.user;
+                if(client)
+                embed.setFooter(`For help on a specific command, use ${PREFIX}help <command name>`,client.displayAvatarURL());
+                else*/
+                embed.setFooter(`For help on a specific command, use ${PREFIX}help <command name>`);
+                
                 /*Object.keys(cmds).forEach((cmd)=>{
                     console.log(cmd);
                     returnMsg+=`${cmd}, \n`;
                 })*/
-                /*for(let cmd in cmds)
-                {
-                    console.log(cmd);
-                    returnMsg+=cmds[cmd].name+'\n';
-                }*/
-                cmds.map((cmd)=>{
+                /*cmds.map((cmd)=>{
                     cmd=cmd.name;
                     returnMsg+=`-${cmd}\n`;
                 });
                 rsps.map((response)=>{
                     response=response.name;
                     returnMsg+=`${response}\n`;
-                })
+                })*/
                 //console.log(cmds.rank);
                 //returnMsg+=cmds.join(', \n');
-                msg.channel.send(returnMsg);
+                msg.channel.send(embed);
             }
             //help for specific command
             else
             {
                 let cmd=cmds.get(args[0]);
+                let rsp=rsps.get(args[0]);
+                let cmdRsp=cmd||rsp;
                 {
-                    if(cmd!==undefined){
-                        let usage=cmd['usage'];
-                        if(usage!==undefined)
-                        msg.channel.send(`usage: ${usage}`);
-                        else
-                        msg.channel.send('no usage doc yet');
+                    if(cmdRsp!==undefined){
+                        let embed=new Discord.MessageEmbed();
+                        embed.setTitle(cmdRsp['name']);
+                        let usage=cmd['usage']||'no usage doc yet';
+                        let description=cmdRsp['description']||'no description yet';
+                        usage=PREFIX+usage;
+                        embed.addField('Description',description);
+                        embed.addField('Usage',usage);
+                        embed.setColor(0xf84343);
+                        msg.channel.send(embed);
                     }
                     else
                     msg.channel.send('command does not exist');

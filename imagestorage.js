@@ -3,8 +3,9 @@ const Discord = require('discord.js');
 const db=require('./database.js');
 const storeImage ={
     name:'store',
-    description:"",
-    usage:'store <identifier> <image url>',
+    description:"Stores an image url",
+    usage:'store <name of image> <image url>',
+    category:'Image storage',
     status:true,
     argsRequired:[2],
     code(msg,args){
@@ -31,8 +32,9 @@ const storeImage ={
 }
 const getImage = {
     name: 'img',
-    description:"",
-    usage: 'img <identifier>',
+    description:"Gets a stored image with the provided image name",
+    usage: 'img <name of image>',
+    category:'Image storage',
     status:true,
     argsRequired: [1],
     code(msg, args) {
@@ -62,8 +64,9 @@ const getImage = {
 }
 const deleteImage={
     name:'delete',
-    description:'',
-    usage:'delete <identifier>',
+    description:'Deletes the stored image with the provided image name',
+    usage:'delete <image name>',
+    category:'Image storage',
     status:true,
     argsRequired:[1],
     code(msg,args){
@@ -86,8 +89,9 @@ const deleteImage={
 }
 const imglist={
     name:'imglist',
-    description:'',
+    description:'Gives a list of the stored images on the server',
     usage:'imglist',
+    category:'Image storage',
     status:true,
     argsRequired:[0],
     code(msg,args){
