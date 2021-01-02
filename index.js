@@ -19,14 +19,14 @@ client.on('ready', ()=>{
     db.query("CREATE TABLE IF NOT EXISTS imgs(id TEXT PRIMARY KEY, name TEXT, url TEXT);",(error,response)=>{
         if(error)
         console.log(error);
-        else
-        console.log(response);
+        //else
+        //console.log(response);
     })
     db.query("CREATE TABLE IF NOT EXISTS points(id TEXT PRIMARY KEY, name TEXT, points INTEGER);",(error,response)=>{
         if(error)
         console.log(error);
-        else
-        console.log(response);
+        //else
+        //console.log(response);
     })
     /*if((storedimgs.get("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='imgs';"))==0)
     {

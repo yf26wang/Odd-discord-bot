@@ -101,6 +101,7 @@ commands= {
     viewPoints:require('./pointscommands.js').viewPoints,
     roulette:require('./pointscommands.js').roulette,
     leaderboard:require('./pointscommands.js').leaderboard,
+    grinch:require('./grinchgame.js'),
     helpCommand:{
         name:'help',
         description:"Provides information on commands and their usage",

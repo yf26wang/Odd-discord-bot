@@ -41,8 +41,8 @@ module.exports={
                 msg.channel.send('Invalid claim type.(use daily, hourly or 5min)');
                 return;
             }
-            if(timestamps.has(`${serverId}&${msg.author.id+type}`)){
-                const timestamp=timestamps.get(`${serverId}&${msg.author.id+type}`);
+            if(timestamps.has(`${serverId}&${userId+type}`)){
+                const timestamp=timestamps.get(`${serverId}&${userId+type}`);
                 if(currentTime.getTime()-timestamp<fullCooldown){
                     const cooldown= Math.round((fullCooldown-(currentTime.getTime()-timestamp))/1000);
                     const cooldownSeconds=cooldown%(60);
@@ -83,7 +83,7 @@ module.exports={
                                 msg.channel.send('no rows');
                                 msg.channel.send('error');
                             }
-                            timestamps.set(`${serverId}&${msg.author.id+type}`,currentTime);
+                            timestamps.set(`${serverId}&${userId+type}`,currentTime);
                         }
                         
                     });
@@ -111,7 +111,7 @@ module.exports={
                             }
                         
                     }
-                    timestamps.set(`${serverId}&${msg.author.id+type}`,currentTime);
+                    timestamps.set(`${serverId}&${userId+type}`,currentTime);
                 })
             }
         }
@@ -170,7 +170,7 @@ module.exports={
             const feelsgoodman=msg.guild.emojis.cache.find((emote)=>{
                 return emote.name==='feelsgoodman';
             }) || {name:'feelsgoodman',id:''};
-            if((roulettePoints!=='all'&&(parseInt(roulettePoints)==NaN))||roulettePoints<0){
+            if((roulettePoints!=='all'&&(!(parseInt(roulettePoints))))||roulettePoints<0){
                 msg.channel.send(`Invalid usage\n Usage: -${this.usage}`);
                 return;
             }
@@ -271,7 +271,7 @@ module.exports={
                             firstplaceAvatar='';
                         }
                         footer={
-                            text:`${res.rows[0].name} currently has the most points`,
+                            text:`${res.rows[0].name} currently has the most points\nAll time high`,
                             icon_url:firstplaceAvatar,
                         }
                         thumbnail={
