@@ -6,9 +6,10 @@ class Grinch{
         this.health= 50;
         this.attack= 7;
         this.pointsDrops=[100,500];
+        this.chestDrops=[500,1000];
         this.buff=1;
         this.damageDrops=800;
-        this.defeatDrops=2000;
+        this.defeatDrops=2500;
         this.player=player;
         this.ranAway=false;
         const responses1=[new Response('normal',60,(action,response)=>{
@@ -48,7 +49,7 @@ class Grinch{
         const action2=new Action('Magic attack','special attack',new RandDescription(`The ${this.name} takes aim at ${this.player.name} with a wizardly attack, `),responses2);
         action2.chance=40;
         const responses3=[new Response('hits',25,(action,response)=>{
-            let damage=30;
+            let damage=29;
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`and deals ${damage} damage to ${action.target.name}`;
         }),new Response('miss',25,(action,response)=>{
@@ -125,7 +126,14 @@ class Grinch{
         return newDamage;
     }
     healthBar(){
-        return `❤️ ${this.health}/50`;
+        let buff='';
+        if(this.buff>1){
+            buff=' | Attack ⬆️';
+        }
+        else if(this.buff<1){
+            buff=' | Attack ⬇️';
+        }
+        return `❤️ ${this.health}/50${buff}`;
     }
     isDefeated(){
         return this.health<=0;
@@ -138,16 +146,16 @@ class Grinch{
     }
     getAction(turns){
         const determinant=Math.random()*100;
-        if(determinant<(turns)){
+        if(determinant<(turns*turns)/12){
             return this.actions[3];
         }
-        if(this.health<40){
-            if(determinant<10){
+        if(this.health<10){
+            if(determinant<20){
                 return this.actions[4];
             }
         }
-        else if(this.health<10){
-            if(determinant<20){
+        else if(this.health<40){
+            if(determinant<10){
                 return this.actions[4];
             }
         }
@@ -194,7 +202,7 @@ class Action{
         const determinant=Math.random()*100;
         let total=0;
         for(let i=0;i<this.responses.length;i++){
-            console.log(this.responses[i]);
+            //console.log(this.responses[i]);
             total+=this.responses[i].chance;
             if(determinant<total){
                 return this.responses[i];
@@ -226,13 +234,13 @@ class Player{
         this.buff=1;
         this.surrender=false;
         this.summaryMsgMap=new Discord.Collection();
-        const responses1=[new Response('normal',75,(action,response)=>{
+        const responses1=[new Response('normal',65,(action,response)=>{
             let damage=action.self.attack+Math.floor((Math.random()-0.5)*4);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`it hits the ${action.target.name}, dealing ${damage} damage.`;
         }),new Response('miss',10,(action,response)=>{
             response.resultMsg=`but it missed.`;
-        }),new Response('critical strike',10,(action,response)=>{
+        }),new Response('critical strike',20,(action,response)=>{
             let damage=(action.self.attack*2+Math.floor((Math.random()-0.5)*8));
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`the attack struck the ${action.target.name} critically, dealing ${damage} damage`;
@@ -275,7 +283,11 @@ class Player{
             let points=Math.floor(Math.random()*(action.target.pointsDrops[1]-action.target.pointsDrops[0]))+action.target.pointsDrops[0];
             points= await updatePoints(`${action.self.serverId}&${action.self.user.id}`,`${action.self.name}`,`${points}`,action.self.summaryMsgMap,'that were given by the Grinch');
             response.resultMsg=`the ${action.target.name} takes pity on ${action.self.name} and gives them ${points} points`;
-        }),new Response('nothing',33,(action,response)=>{
+        }),new Response('treasure chest',15,async (action,response)=>{
+            let points=Math.floor(Math.random()*(action.target.chestDrops[1]-action.target.chestDrops[0]))+action.target.chestDrops[0];
+            points= await updatePoints(`${action.self.serverId}&${action.self.user.id}`,`${action.self.name}`,`${points}`,action.self.summaryMsgMap,'that were given by the Grinch');
+            response.resultMsg=`the ${action.target.name} takes pity on ${action.self.name} and gives them a present containing ${points} points`;
+        }),new Response('nothing',18,(action,response)=>{
             response.resultMsg=`but is ignored by the ${action.target.name}`;
         }),new Response('steal',33, async (action,response)=>{
             let points=-(Math.floor((Math.random()*(action.target.pointsDrops[1]-action.target.pointsDrops[0])+action.target.pointsDrops[0])/2));
@@ -310,14 +322,18 @@ class Player{
             response.resultMsg=`the ${action.target.name} is enraged, buffing his next attack`;
         })];
         const action4=new Action('Taunt','Taunt the Grinch',new RandDescription(`${this.name} taunts the Grinch, `),responses4);
-        const responses5=[new Response('success',80,(action,response)=>{
+        const responses5=[new Response('success',70,(action,response)=>{
             const heal=this.attack*2+Math.floor((Math.random()-0.5)*4);
             action.self.heal(heal);
             response.resultMsg=` and restores ${heal} health`;
-        }),new Response('mini heal',20,(action,response)=>{
+        }),new Response('mini heal',15,(action,response)=>{
             const heal=1;
             action.self.heal(heal);
             response.resultMsg=` but only restores ${heal} health`;
+        }),new Response('crit heal',15,(action,response)=>{
+            const heal=this.attack*4+Math.floor((Math.random()-0.5)*4);
+            action.self.heal(heal);
+            response.resultMsg=`the brew was very effective, restoring ${heal} health`;
         })];
         const action5=new Action('Heal (costs 100 points)','Heal up',new RandDescription(`${this.name} drinks &1, `,[['a health potion','an elxir of iron','a health II potion','some orange juice','some hot chocolate','some water','some soup']]),responses5);
         action5.cost=100;
@@ -350,7 +366,14 @@ class Player{
         return newDamage;
     }
     healthBar(){
-        return `❤️ ${this.health}/30`
+        let buff=''
+        if(this.buff>1){
+            buff=' | Attack ⬆️';
+        }
+        else if(this.buff<1){
+            buff=' | Attack ⬇️';
+        }
+        return `❤️ ${this.health}/30${buff}`;
     }
     isDefeated(){
         return this.health<=0;
@@ -379,7 +402,7 @@ class Game{
         await this.msg.react('➡️');
         const next= await this.msg.awaitReactions(filter,{max:1,time:600000,errors:['time']});
         this.msg.reactions.removeAll();
-        this.embed.setTitle('A wild Grinch appears! Fight the grinch');
+        this.embed.setTitle('A wild Grinch appears! Fight the Grinch');
         this.embed.setThumbnail((this.player.user.displayAvatarURL()));
         this.summary.setTitle(`Here is a summary of ${this.player.name}'s battle with the ${this.grinch.name}`);
         this.summary.setThumbnail((this.player.user.displayAvatarURL()));
@@ -539,7 +562,7 @@ class Game{
         }).catch(async (err)=>{
             console.log(err);
             this.msg.client.cooldowns.get('grinch').delete(`${this.channel.guild.id}&${this.player.user.id}`);
-            this.summary.setDescription(summaryDescription);
+            this.summary.setDescription(`${this.player.name} went Afk`);
             this.setSummary();
             const res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player.user.id}`]);
             if(res.rowCount){
@@ -605,7 +628,7 @@ class Game{
         }).catch(async (err)=>{
             console.log(err);
             this.msg.client.cooldowns.get('grinch').delete(`${this.channel.guild.id}&${this.player.user.id}`);
-            this.summary.setDescription(summaryDescription);
+            this.summary.setDescription(`${this.player.name} went Afk`);
             this.setSummary();
             const res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player.user.id}`]);
             if(res.rowCount){
@@ -647,7 +670,10 @@ class Game{
             returnData.endingMsg+='Final Blow';
         }
         else if(this.grinch.ranAway){
-            returnData.returnMsg+=`The ${this.grinch.name} ran away`;
+            const drop=pickWord(['potato','server heart']);
+            const points=300+Math.floor(Math.random()*50);
+            returnData.returnMsg+=`The ${this.grinch.name} ran away, leaving behind a ${drop} worth ${points} points`;
+            await updatePoints(`${this.player.serverId}&${this.player.user.id}`,`${this.player.name}`,`${points}`,this.player.summaryMsgMap,`from the ${drop}`);
             this.embed.setImage('https://i.imgur.com/9Xbk3pM.png');
             returnData.endingMsg+='Final Action';
         }
@@ -729,7 +755,7 @@ function pickWord(wordArray){
 
 module.exports={
     name:'grinch',
-    description:'Starts an attempt to fight the Grinch (costs 500 points)',
+    description:'Starts an attempt to fight the Grinch (costs 300 points)',
     usage:'grinch',
     category:'',
     status:true,
@@ -740,12 +766,12 @@ module.exports={
         const userId=msg.author.id;
         const guildName=msg.member.displayName;
         const channel=msg.channel;
-        const cost=500;
+        const cost=300;
         const db=require('./database.js');
         let currentPoints;
         try{
         const res= await db.query('SELECT * FROM points WHERE id=$1',[`${serverId}&${userId}`]);
-        if(res.rowCount<=0||res.rows[0].points<500){
+        if(res.rowCount<=0||res.rows[0].points<cost){
             msg.channel.send('You do not have enough points to fight the Grinch');
             return;
         }
@@ -771,11 +797,6 @@ module.exports={
         const grinch=new Grinch(player);
         const game=new Game(player,grinch,channel);
         await updatePoints(`${serverId}&${userId}`,`${guildName}`,`${-cost}`,player.summaryMsgMap,'as base cost');
-        game.startGame(grinch,player).then((res)=>{
-            timestamps.delete(`${serverId}&${userId}`);
-        }).catch((err)=>{
-            console.log(err);
-            timestamps.delete(`${serverId}&${userId}`);
-        });
+        game.startGame(grinch,player);
     }
 }
