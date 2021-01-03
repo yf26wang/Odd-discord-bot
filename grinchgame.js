@@ -170,10 +170,7 @@ class RandDescription{
         let description=this.base;
         if(this.wordArray){
         let i=1;
-        console.log(this.wordArray);
-        console.log('desc');
         while(description.indexOf(`&${i}`)!=-1){
-            console.log(pickWord(this.wordArray[i-1]));
             description=description.replace(`&${i}`,pickWord(this.wordArray[i-1]));
             i++;
         }
@@ -454,7 +451,7 @@ class Game{
         const playerAction=this.player.actions[action-1];
         playerAction.target=this.grinch;
         playerAction.self=this.player;
-        console.log(playerAction.startMsg);
+        //console.log(playerAction.startMsg);
         let returnMsg=playerAction.startMsg.buildDescription();
         let start=returnMsg;
         let response=playerAction.getResponse();
@@ -492,7 +489,7 @@ class Game{
             const turnMsg=`**The ${this.grinch.name}'s turn**\n`;
         startingHealth=this.grinch.health;
         const grinchAction=this.grinch.getAction(this.turns);
-        console.log(grinchAction);
+        //console.log(grinchAction);
         grinchAction.target=this.player;
         grinchAction.self=this.grinch;
         start=grinchAction.startMsg.buildDescription()
@@ -579,7 +576,6 @@ class Game{
         this.msg.awaitReactions(filter,{max:1, time:600000,errors:['time']}).then(async (actionEmote)=>{
             let action;
             actionEmote.forEach((element)=>{
-                console.log(element);
                 const emote=element._emoji.name;
                 action=emote.substring(0,emote.indexOf('\ufe0f'));
             });
@@ -645,7 +641,6 @@ class Game{
             returnData.endingMsg+='Final Blow';
         }
         else if(this.grinch.isDefeated()){
-            console.log('run');
             returnData.returnMsg+=`The ${this.grinch.name} was defeated, and dropped ${this.grinch.defeatDrops} points`;
             this.embed.setImage('https://static.drips.pw/rotmg/wiki/Enemies/shtrs%20Loot%20Balloon%20Bridge.png');
             await updatePoints(`${this.player.serverId}&${this.player.user.id}`,`${this.player.name}`,`${this.grinch.defeatDrops}`,this.player.summaryMsgMap,`from defeating the ${this.grinch.name}`);
@@ -695,8 +690,6 @@ class Game{
         summaryMsg+='**Total**';
         this.summary.addField('Source',summaryMsg,true);
         this.summary.addField('Points',pointsMsg,true);
-        console.log(this.player.summaryMsgMap);
-        console.log(summaryMsg);
     }
 }
 async function updatePoints(id,name,points,summary,source){
@@ -710,7 +703,7 @@ async function updatePoints(id,name,points,summary,source){
     else{
         currentPoints=res.rows[0].points;
     }
-    console.log(currentPoints);
+    //console.log(currentPoints);
     if(currentPoints+parseInt(points)<0){
         points=`${(-currentPoints)}`;
     }
@@ -772,7 +765,7 @@ module.exports={
             return;
         }
         timestamps.set(`${serverId}&${userId}`,'playing');
-        console.log(timestamps);
+        //console.log(timestamps);
 
         const player=new Player(guildName,user,serverId);
         const grinch=new Grinch(player);
