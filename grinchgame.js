@@ -22,7 +22,7 @@ class Grinch{
         }),new Response('miss',30,(action,response)=>{
             response.resultMsg=`but it missed!`
         })];
-        const action1=new Action('Normal attack','normal attack',`The grinch hits ${this.player.name} with ${pickWord(['his hat','his bag','nothing'])}, `,responses1);
+        const action1=new Action('Normal attack','normal attack',new RandDescription(`The grinch hits ${this.player.name} with &1, `,[['his hat','his bag','nothing']]),responses1);
         action1.chance=30;
         const responses2=[new Response('normal',30,(action,response)=>{
             let damage=action.self.attack+3+Math.floor((Math.random()-0.5)*6);
@@ -45,7 +45,7 @@ class Grinch{
             action.self.heal(heal);
             response.resultMsg=`the attack was a lifesteal attack, dealing ${damage} damage to ${action.target.name}, and healing the ${action.self.name} for ${heal} health`
         })];
-        const action2=new Action('Magic attack','special attack',`The ${this.name} takes aim at ${this.player.name} with a wizardly attack, `,responses2);
+        const action2=new Action('Magic attack','special attack',new RandDescription(`The ${this.name} takes aim at ${this.player.name} with a wizardly attack, `),responses2);
         action2.chance=40;
         const responses3=[new Response('hits',25,(action,response)=>{
             let damage=30;
@@ -60,7 +60,7 @@ class Grinch{
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`but it only deals ${damage} damage to ${action.target.name}`;
         })];
-        const action3=new Action('Charged attack','ultimate attack',`The ${this.name} charges up his ${pickWord(['ultimate','ultra','most powerful'])} attack, `,responses3);
+        const action3=new Action('Charged attack','ultimate attack',new RandDescription(`The ${this.name} charges up his &1 attack, `,[['ultimate','ultra','most powerful']]),responses3);
         action3.chance=10;
         const responses4=[new Response('success',70,(action,response)=>{
             action.self.ranAway=true;
@@ -68,7 +68,7 @@ class Grinch{
         }),new Response('fails',30,(action,response)=>{
             response.resultMsg=`but trips on ${pickWord(['a banana peel','his bag','a rock','a snowball','a snow castle','an ice sculpture'])}`;
         })];
-        const action4=new Action('Run away','run away',`The ${this.name} tries to run away, `,responses4);
+        const action4=new Action('Run away','run away',new RandDescription(`The ${this.name} tries to run away, `),responses4);
         action4.chance=0;
         const action5Word=pickWord(['cookies','cookies','chocolates','bananas','popsicles','icicles','oranges']);
         const responses5=[new Response('success',60,(action,response)=>{
@@ -84,10 +84,10 @@ class Grinch{
             action.self.takeDamage(damage,false);
             response.resultMsg=`but they were expired, dealing ${damage} damage to the Grinch`;
         })];
-        const action5=new Action('Heal','heal',`The ${this.name} eats some ${action5Word}, `,responses5);
+        const action5=new Action('Heal','heal',new RandDescription(`The ${this.name} eats some ${action5Word}, `),responses5);
         action5.chance=0;
         const responses6=[new Response('success',50, async (action,response)=>{
-            let points=-(Math.floor((Math.random()*(action.self.pointsDrops[1]-action.self.pointsDrops[0])+action.self.pointsDrops[0])));
+            let points=-(Math.floor((Math.random()*(action.self.pointsDrops[1]-action.self.pointsDrops[0])+action.self.pointsDrops[0])/2));
             points= await updatePoints(`${action.target.serverId}&${action.target.user.id}`,`${action.target.name}`,`${points}`,action.target.summaryMsgMap,'that were stolen by the Grinch');
             if(points==0){
                 response.resultMsg=`and then reappears behind ${action.target.name}, trying steal points from ${action.target.name}. Unfortunately, it turns out ${action.target.name} was too poor to steal from`;
@@ -99,7 +99,7 @@ class Grinch{
             action.self.buff*=2;
             response.resultMsg=`and reappears with ${pickWord(['a potion of strength','a potion of strength II','a potion of attack','an elxir of wrath',`a bottle of ${action.target.name}'s tears`])}. The ${action.self.name} drinks the brew, buffing his next attack`;
         })];
-        const action6=new Action('Steal points','steal',`The ${this.name} disappears for a second, `,responses6);
+        const action6=new Action('Steal points','steal',new RandDescription(`The ${this.name} disappears for a second, `),responses6);
         action6.chance=20;
         this.actions=[action1,action2,action3,action4,action5,action6];
     }
@@ -159,6 +159,26 @@ class Grinch{
             }
         }
         return 'error';
+    }
+}
+class RandDescription{
+    constructor(base,wordArray){
+        this.base=base;
+        this.wordArray=wordArray;
+    }
+    buildDescription(){
+        let description=this.base;
+        if(this.wordArray){
+        let i=1;
+        console.log(this.wordArray);
+        console.log('desc');
+        while(description.indexOf(`&${i}`)!=-1){
+            console.log(pickWord(this.wordArray[i-1]));
+            description=description.replace(`&${i}`,pickWord(this.wordArray[i-1]));
+            i++;
+        }
+    }
+        return description;
     }
 }
 class Action{
@@ -228,7 +248,7 @@ class Player{
             damage=action.self.takeDamage(damage,false);
             response.resultMsg=`but it was reflected by the Grinch, dealing ${damage} damage to ${action.self.name}!`
         })];
-        const action1=new Action('Normal attack','Normal attack',`${this.name} strikes the Grinch with ${pickWord(['a sword','a knife','a shovel','a kendo stick','a firesword','an apple','a glass sword','the Ichimonji','a Dirk','a mango sword','the Indomptable'])}, `,responses1);
+        const action1=new Action('Normal attack','Normal attack',new RandDescription(`${this.name} strikes the Grinch with &1, `,[['a sword','a knife','a shovel','a kendo stick','a firesword','an apple','a glass sword','the Ichimonji','a Dirk','a mango sword','the Indomptable']]),responses1);
         const responses2=[new Response('normal',50,(action,response)=>{
             let damage=action.self.attack*2+Math.floor((Math.random()-0.5)*6);
             damage=action.target.takeDamage(damage,true,action.self);
@@ -252,7 +272,7 @@ class Player{
             selfDamage=action.self.takeDamage(selfDamage,true,action.target);
             response.resultMsg=`but the attack goes off before ${action.self.name} could target it, dealing ${selfDamage} damage to ${action.self.name} and ${targetDamage} damage to the ${action.target.name}`;
         })];
-        const action2=new Action('Magic attack (costs 100 points)','Use magic',`${this.name} winds up a powerful magic attack using ${pickWord(['an orb','a spell','nothing','their expertise','a prism','a snow globe','a skull'])}, `,responses2);
+        const action2=new Action('Magic attack (costs 100 points)','Use magic',new RandDescription(`${this.name} winds up a powerful magic attack using &1, `,[['an orb','a spell','nothing','their expertise','a prism','a snow globe','a skull']]),responses2);
         action2.cost=100;
         const responses3=[new Response('sucess',33, async (action,response)=>{
             let points=Math.floor(Math.random()*(action.target.pointsDrops[1]-action.target.pointsDrops[0]))+action.target.pointsDrops[0];
@@ -274,7 +294,7 @@ class Player{
             points= await updatePoints(`${action.self.serverId}&${action.self.user.id}`,`${action.self.name}`,`${points}`,action.self.summaryMsgMap,'that were given by the Grinch');
             response.resultMsg=`the ${action.target.name} is in a good mood and gives ${action.self.name} ${points} points`;
         })];
-        const action3=new Action('Ask for points','Ask the Grinch for points',`${this.name} asks the Grinch for points, `,responses3);
+        const action3=new Action('Ask for points','Ask the Grinch for points',new RandDescription(`${this.name} asks the Grinch for points, `),responses3);
         const responses4=[new Response('hurt',15,(action,response)=>{
             let damage=action.self.attack*3+Math.floor((Math.random()-0.5)*4);
             damage=action.target.takeDamage(damage,false);
@@ -292,7 +312,7 @@ class Player{
             action.target.buff*=2;
             response.resultMsg=`the ${action.target.name} is enraged, buffing his next attack`;
         })];
-        const action4=new Action('Taunt','Taunt the Grinch',`${this.name} taunts the Grinch, `,responses4);
+        const action4=new Action('Taunt','Taunt the Grinch',new RandDescription(`${this.name} taunts the Grinch, `),responses4);
         const responses5=[new Response('success',80,(action,response)=>{
             const heal=this.attack*2+Math.floor((Math.random()-0.5)*4);
             action.self.heal(heal);
@@ -302,13 +322,13 @@ class Player{
             action.self.heal(heal);
             response.resultMsg=` but only restores ${heal} health`;
         })];
-        const action5=new Action('Heal (costs 100 points)','Heal up',`${this.name} drinks ${pickWord(['a health potion','an elxir of iron','a health II potion','some orange juice','some hot chocolate','some water','some soup'])}, `,responses5);
+        const action5=new Action('Heal (costs 100 points)','Heal up',new RandDescription(`${this.name} drinks &1, `,[['a health potion','an elxir of iron','a health II potion','some orange juice','some hot chocolate','some water','some soup']]),responses5);
         action5.cost=100;
         const responses6=[new Response('success',100,(action,response)=>{
             action.self.surrender=true;
             response.resultMsg='';
         })]
-        const action6=new Action('Surrender','Admit defeat',`${this.name} surrendered.`,responses6)
+        const action6=new Action('Surrender','Admit defeat',new RandDescription(`${this.name} surrendered.`),responses6)
         this.actions=[action1,action2,action3,action4,action5,action6];
     }
     takeDamage(damage,isAttack,self){
@@ -367,17 +387,18 @@ class Game{
         this.summary.setTitle(`Here is a summary of ${this.player.name}'s battle with the ${this.grinch.name}`);
         this.summary.setThumbnail((this.player.user.displayAvatarURL()));
             //this.msg= await this.msg.edit(this.embed);
-            console.log('sent');
-            console.log(this.msg);
+            //console.log('sent');
+            //console.log(this.msg);
+            await this.playersTurn();
         }
         catch(err){
             console.log(err);
             this.msg.client.cooldowns.get('grinch').delete(`${this.channel.guild.id}&${this.player.user.id}`);
             return;
         }
-        await this.playersTurn();
     }
     async playersTurn(){
+        try{
         this.embed.fields=[];
         this.embed.setDescription('Choose an action');
         this.embed.setFooter('React with the numbered emotes to choose an action');
@@ -394,7 +415,6 @@ class Game{
             //console.log(this.embed);
         }
         this.embed.addField(`${this.player.name}: ${this.player.healthBar()}`,`${this.grinch.name}: ${this.grinch.healthBar()}`,true);
-        try{
             this.msg= await this.msg.edit(this.embed);
             
         }
@@ -434,7 +454,9 @@ class Game{
         const playerAction=this.player.actions[action-1];
         playerAction.target=this.grinch;
         playerAction.self=this.player;
-        let returnMsg=playerAction.startMsg;
+        console.log(playerAction.startMsg);
+        let returnMsg=playerAction.startMsg.buildDescription();
+        let start=returnMsg;
         let response=playerAction.getResponse();
         //console.log(response);
         await response.response(playerAction,response);
@@ -447,7 +469,7 @@ class Game{
             this.embed.addField(`${this.player.name}: ${this.player.healthBar()}`,`${this.grinch.name}: ${this.grinch.healthBar()}`);
             returnMsg+=endMsg.returnMsg;
             this.embed.setDescription(returnMsg);
-            const summaryDescription=`${endMsg.returnMsg}\n**${endMsg.endingMsg}**\n${playerAction.startMsg+response.resultMsg}`;
+            const summaryDescription=`${endMsg.returnMsg}\n**${endMsg.endingMsg}**\n${start+response.resultMsg}`;
             this.summary.setDescription(summaryDescription);
             this.msg= await this.msg.edit(this.embed);
             const next= await this.msg.awaitReactions(filter,{max:1,time:600000,errors:['time']});
@@ -473,7 +495,8 @@ class Game{
         console.log(grinchAction);
         grinchAction.target=this.player;
         grinchAction.self=this.grinch;
-        returnMsg+=grinchAction.startMsg;
+        start=grinchAction.startMsg.buildDescription()
+        returnMsg+=grinchAction.startMsg.buildDescription();
         response=grinchAction.getResponse();
         await response.response(grinchAction,response);
         returnMsg+=response.resultMsg;
@@ -486,7 +509,7 @@ class Game{
             returnMsg+=endMsg.returnMsg;
             this.embed.addField(turnMsg,returnMsg);
             this.embed.addField(`${this.player.name}: ${this.player.healthBar()}`,`${this.grinch.name}: ${this.grinch.healthBar()}`);
-            const summaryDescription=`${endMsg.returnMsg}\n**${endMsg.endingMsg}**\n${grinchAction.startMsg+response.resultMsg}`;
+            const summaryDescription=`${endMsg.returnMsg}\n**${endMsg.endingMsg}**\n${start+response.resultMsg}`;
             this.summary.setDescription(summaryDescription);
             this.msg= await this.msg.edit(this.embed);
             const next= await this.msg.awaitReactions(filter,{max:1,time:600000,errors:['time']});
@@ -516,9 +539,19 @@ class Game{
         this.msg.awaitReactions(filter,{max:1,time:600000,errors:['time']}).then((next)=>{
             next.first().users.remove(this.player.user);
             this.playersTurn();
-        }).catch((err)=>{
+        }).catch(async (err)=>{
             console.log(err);
             this.msg.client.cooldowns.get('grinch').delete(`${this.channel.guild.id}&${this.player.user.id}`);
+            this.summary.setDescription(summaryDescription);
+            this.setSummary();
+            const res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player.user.id}`]);
+            if(res.rowCount){
+                this.summary.setFooter(`${this.player.name} now has ${res.rows[0].points} points`,`${this.player.user.displayAvatarURL()}`);
+            }
+            else{
+                this.summary.setFooter(`${this.player.name} now has 0 points`,`${this.player.user.displayAvatarURL()}`);
+            }
+            this.msg.edit(this.summary);
             return;
         });
         /*try{
@@ -573,9 +606,19 @@ class Game{
                 await this.msg.edit(this.embed);
                 this.awaitPlayerAction();
             }
-        }).catch((err)=>{
+        }).catch(async (err)=>{
             console.log(err);
             this.msg.client.cooldowns.get('grinch').delete(`${this.channel.guild.id}&${this.player.user.id}`);
+            this.summary.setDescription(summaryDescription);
+            this.setSummary();
+            const res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player.user.id}`]);
+            if(res.rowCount){
+                this.summary.setFooter(`${this.player.name} now has ${res.rows[0].points} points`,`${this.player.user.displayAvatarURL()}`);
+            }
+            else{
+                this.summary.setFooter(`${this.player.name} now has 0 points`,`${this.player.user.displayAvatarURL()}`);
+            }
+            this.msg.edit(this.summary);
             return;
         });
     }
@@ -693,7 +736,7 @@ function pickWord(wordArray){
 
 module.exports={
     name:'grinch',
-    description:'',
+    description:'Starts an attempt to fight the Grinch (costs 500 points)',
     usage:'grinch',
     category:'',
     status:true,
@@ -735,7 +778,11 @@ module.exports={
         const grinch=new Grinch(player);
         const game=new Game(player,grinch,channel);
         await updatePoints(`${serverId}&${userId}`,`${guildName}`,`${-cost}`,player.summaryMsgMap,'as base cost');
-        await game.startGame(grinch,player);
-        console.log('run');
+        game.startGame(grinch,player).then((res)=>{
+            timestamps.delete(`${serverId}&${userId}`);
+        }).catch((err)=>{
+            console.log(err);
+            timestamps.delete(`${serverId}&${userId}`);
+        });
     }
 }
