@@ -145,24 +145,25 @@ class Grinch{
         return points;
     }
     getAction(turns){
-        const determinant=Math.random()*100;
-        if(determinant<(turns*turns)/12){
+        const determinant1=Math.random()*100;
+        if(determinant1<(turns*turns)/15){
             return this.actions[3];
         }
         if(this.health<10){
-            if(determinant<20){
+            if(determinant1<20){
                 return this.actions[4];
             }
         }
         else if(this.health<40){
-            if(determinant<10){
+            if(determinant1<10){
                 return this.actions[4];
             }
         }
+        const determinant2=Math.random()*100;
         let total=0;
         for(let i=0;i<this.actions.length;i++){
             total+=this.actions[i].chance;
-            if(determinant<total){
+            if(determinant2<total){
                 return this.actions[i];
             }
         }
@@ -290,7 +291,7 @@ class Player{
         }),new Response('nothing',18,(action,response)=>{
             response.resultMsg=`but is ignored by the ${action.target.name}`;
         }),new Response('steal',33, async (action,response)=>{
-            let points=-(Math.floor((Math.random()*(action.target.pointsDrops[1]-action.target.pointsDrops[0])+action.target.pointsDrops[0])/2));
+            let points=-(Math.floor((Math.random()*(action.target.pointsDrops[1]-action.target.pointsDrops[0])+action.target.pointsDrops[0])));
             points= await updatePoints(`${action.self.serverId}&${action.self.user.id}`,`${action.self.name}`,`${points}`,action.self.summaryMsgMap,'that were stolen by the Grinch');
             if(points==0){
                 response.resultMsg=`the ${action.target.name} does not give any points, and instead tries to steal points from ${action.self.name}. However, ${action.self.name} had no points to steal from.`;

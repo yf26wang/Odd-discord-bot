@@ -101,6 +101,10 @@ commands= {
     viewPoints:require('./pointscommands.js').viewPoints,
     roulette:require('./pointscommands.js').roulette,
     leaderboard:require('./pointscommands.js').leaderboard,
+    duel:require('./pointscommands.js').duel,
+    cancelduel:require('./pointscommands.js').cancelduel,
+    accept:require('./pointscommands.js').accept,
+    deny:require('./pointscommands.js').deny,
     grinch:require('./grinchgame.js'),
     helpCommand:{
         name:'help',

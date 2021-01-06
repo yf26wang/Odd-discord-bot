@@ -1,6 +1,8 @@
 const { DiscordAPIError } = require("discord.js");
 const Discord=require('discord.js');
-const { re } = require("mathjs");
+const { re, sign } = require("mathjs");
+const { code } = require("./grinchgame.js");
+const db=require('./database.js');
 const PREFIX=process.env.PREFIX;
 module.exports={
     claimPoints:{
@@ -13,7 +15,6 @@ module.exports={
         code(msg,args){
             const currentTime=new Date();
             const type=args[0];
-            const db=require('./database.js');
             const serverId=msg.guild.id;
             const userId=msg.author.id;
             const name=msg.author.username;
@@ -136,7 +137,6 @@ module.exports={
                 userId=msg.author.id;
                 guildName=msg.member.displayName;
             }
-            const db=require('./database.js');
             db.query('SELECT name,points FROM points WHERE id=$1',[`${serverId}&${userId}`],(err,res)=>{
                 if(err)
                 console.log(err);
@@ -159,7 +159,6 @@ module.exports={
         status:true,
         argsRequired:[1],
         code(msg,args){
-            db=require('./database.js');
             let roulettePoints=args[0];
             const serverId=msg.guild.id;
             const userId=msg.author.id;
@@ -236,7 +235,6 @@ module.exports={
         status:true,
         argsRequired:[0,1],
         code(msg,args){
-            db=require('./database.js');
             let entries= args[0]||10;
             const serverId=msg.guild.id;
             if(entries<0)
@@ -271,7 +269,7 @@ module.exports={
                             firstplaceAvatar='';
                         }
                         footer={
-                            text:`${res.rows[0].name} currently has the most points\nAll time high`,
+                            text:`${res.rows[0].name} currently has the most points`/* \nAll time high`*/,
                             icon_url:firstplaceAvatar,
                         }
                         thumbnail={
@@ -300,6 +298,267 @@ module.exports={
             
             
         }
+    },
+    duel:{
+        name:'duel',
+        description:'challenges another player to a duel',
+        usage:'duel <user mention> <points>',
+        category:'points',
+        status:true,
+        argsRequired:[2],
+        async code(msg,args){
+            const serverId=msg.guild.id;
+            const userId=msg.author.id;
+            const guildName=msg.member.displayName;
+            const userMention=msg.mentions.users.first();
+            const points=args[1];
+            const currentTime=Date.now();
+            const feelsgoodman=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='feelsgoodman';
+            }) || {name:'feelsgoodman',id:''};
+            const pagchomp=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='pagchomp';
+            }) || {name:'pagchomp',id:''};
+            const feelsweirdman=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='feelsweirdman';
+            }) || {name:'feelsweirdman',id:''};
+            if(!userMention){
+                msg.channel.send('Mention someone to challenge them\nUsage:'+PREFIX+this.usage);
+                return;
+            }
+            if((!(parseInt(points)))||points<0){
+                msg.channel.send('Please provide a valid number of points\nUsage:'+PREFIX+this.usage);
+                return;
+            }
+            const mentionId=userMention.id;
+            if(mentionId==userId){
+                msg.channel.send(`You can\'t duel yourself <:${feelsweirdman.name}:${feelsweirdman.id}>`);
+                return;
+            }
+            const mentionMember= await msg.guild.members.fetch(mentionId);
+            const mentionName= mentionMember.displayName;
+            if(!msg.client.cooldowns.get(this.name))
+            {
+                msg.client.cooldowns.set(this.name,new Discord.Collection());
+            }
+            const timestamps=msg.client.cooldowns.get(this.name);
+            if(!msg.client.results.get(this.name))
+            {
+                msg.client.results.set(this.name,new Discord.Collection());
+            }
+            const record=msg.client.results.get(this.name);
+            const res=await db.query('SELECT points FROM points WHERE id=$1',[`${serverId}&${userId}`]);
+                let currentPoints=0;
+                if(res.rowCount){
+                    currentPoints=res.rows[0].points;
+                }
+                if(currentPoints<points){
+                    msg.channel.send('You do not have that many points');
+                }
+            else if(record.has(`${serverId}&${mentionId}`)){
+                msg.channel.send('This player is already being challenged, wait for them to accept current duel');
+            }
+            else{
+                record.set(`${serverId}&${mentionId}`,{userId:userId,points:points,time:currentTime});
+                await db.query('UPDATE points SET points=points-$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
+                msg.channel.send(`${guildName} is challenging ${mentionName} to a duel of ${points} points. <:${pagchomp.name}:${pagchomp.id}> Use ${PREFIX}accept or ${PREFIX}deny within two minutes to accept or deny`);
+            }
+            setTimeout(async ()=>{
+                if(record.has(`${serverId}&${mentionId}`)){
+                    console.log('run');
+                    const duel=record.get(`${serverId}&${mentionId}`);
+                    if(duel.userId==userId&&duel.points==points&&duel.time==currentTime){
+                    record.delete(`${serverId}&${mentionId}`);
+                    msg.channel.send(`${guildName}'s duel request against ${mentionName} timed out`);
+                    const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
+                        if(res.rowCount<=0){
+                            await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${points}`]);
+                        }
+                }
+                }
+            },60000);
+        }
+    },
+    accept:{
+        name:'accept',
+        description:'accepts someone\'s request to duel',
+        usage:'accept',
+        category:'points',
+        status:true,
+        argsRequired:[0],
+        async code(msg,args){
+            const serverId=msg.guild.id;
+            const userId=msg.author.id;
+            const guildName=msg.member.displayName;
+            const feelsgoodman=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='feelsgoodman';
+            }) || {name:'feelsgoodman',id:''};
+            const pagchomp=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='pagchomp';
+            }) || {name:'pagchomp',id:''};
+            if(!msg.client.cooldowns.get(this.name))
+            {
+                msg.client.cooldowns.set(this.name,new Discord.Collection());
+            }
+            const timestamps=msg.client.cooldowns.get(this.name);
+            if(!msg.client.results.get('duel'))
+            {
+                msg.client.results.set('duel',new Discord.Collection());
+            }
+            const record=msg.client.results.get('duel');
+            console.log(record);
+            if(record.has(`${serverId}&${userId}`)){
+                const duel=record.get(`${serverId}&${userId}`);
+                const challengerId=duel.userId;
+                const challengerMember=await msg.guild.members.fetch(challengerId);
+                const challengerName=challengerMember.displayName;
+                const points=duel.points;
+                const res=await db.query('SELECT points FROM points WHERE id=$1',[`${serverId}&${userId}`]);
+                let currentPoints=0;
+                if(res.rowCount){
+                    currentPoints=res.rows[0].points;
+                }
+                console.log(currentPoints);
+                if(currentPoints<points){
+                    record.delete(`${serverId}&${userId}`);
+                    msg.channel.send('You do not have enough points the accept the duel, the duel is cancelled');
+                    const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points}`,`${serverId}&${challengerId}`]);
+                        if(res.rowCount<=0){
+                            await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${challengerId}`,`${guildName}`,`${points}`]);
+                        }
+                    return;
+                }
+                const result=Math.random()<0.5 ? 'challenger':'receiver';
+                if(result=='challenger'){
+                    const res1=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*3}`,`${serverId}&${challengerId}`]);
+                    if(res1.rowCount<=0){
+                        await db.query('INSERT INTO points VALUES ($1,$2,$3)'[`${serverId}&${challengerId}`,`${challengerName}`,`${points*2}`]);
+                    }
+                    const res2=await db.query('UPDATE points SET points=points-$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
+                    if(res2.rowCount<=0){
+                        await db.query('INSERT INTO points VALUES ($1,$2,$3)'[`${serverId}&${userId}`,`${guildName}`,`0`]);
+                    }
+                    msg.channel.send(`${challengerName} won the duel against ${guildName} <:${pagchomp.name}:${pagchomp.id}> ${challengerName} won ${points*3} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
+                }
+                else if(result=='receiver'){
+                    const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*2}`,`${serverId}&${userId}`]);
+                    if(res.rowCount<=0){
+                        await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${points*2}`]);
+                    }
+                    msg.channel.send(`${guildName} won the duel against ${challengerName} <:${pagchomp.name}:${pagchomp.id}> ${guildName} won ${points*3} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
+                }
+                record.delete(`${serverId}&${userId}`);
+            }
+            else{
+                msg.channel.send('There\'s no one challenging you at the moment');
+            }
+        }
+    },
+    cancelduel:{
+        name:'cancelduel',
+        description:'cancels your request to duel the tagged user, if no users are tagged, removes all outstanding duel requests you currently have',
+        usage:'cancelduel <user mention (optional)>',
+        category:'points',
+        status:true,
+        argsRequired:[0,1],
+        async code(msg,args){
+            try{
+            const serverId=msg.guild.id;
+            const userId=msg.author.id;
+            const guildName=msg.member.displayName;
+            if(!msg.client.cooldowns.get(this.name))
+            {
+                msg.client.cooldowns.set(this.name,new Discord.Collection());
+            }
+            const timestamps=msg.client.cooldowns.get(this.name);
+            if(!msg.client.results.get('duel'))
+            {
+                msg.client.results.set('duel',new Discord.Collection());
+            }
+            const record=msg.client.results.get('duel');
+            if(args.length===0){
+                record.forEach(async(duel,key,map)=>{
+                    if(duel.userId==userId){
+                        const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${duel.points}`,`${serverId}&${userId}`]);
+                        if(res.rowCount<=0){
+                            await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${duel.points}`]);
+                        }
+                        map.delete(key);
+                    }
+                });
+                msg.channel.send('Duel requests cancelled');
+            }
+            else if(args.length===1){
+                const userMention=msg.mentions.users.first();
+                if(!userMention){
+                    msg.channel.send('mention someone to cancel the duel\nUsage:'+PREFIX+this.usage);
+                    return;
+                }
+                const mentionId=userMention.id;
+                const mentionMember= await msg.guild.members.fetch(mentionId);
+                const mentionName= mentionMember.displayName;
+                record.forEach(async(duel,key,map)=>{
+                    if(duel.userId==userId&&key==`${serverId}&${mentionId}`){
+                        const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${duel.points}`,`${serverId}&${userId}`]);
+                        if(res.rowCount<=0){
+                            await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${duel.points}`]);
+                        }
+                        map.delete(key);
+                    }
+                });
+                msg.channel.send('Duel request against '+mentionName+' cancelled');
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+        }
+    },
+    deny:{
+        name:'deny',
+        description:'deny someone\'s request to duel you',
+        usage:'deny',
+        category:'points',
+        status:true,
+        argsRequired:[0],
+        async code(msg,args){
+            try{
+            const serverId=msg.guild.id;
+            const userId=msg.author.id;
+            const guildName=msg.member.displayName;
+            const feelsbadman=msg.guild.emojis.cache.find((emote)=>{
+                return emote.name==='feelsbadman';
+            }) || {name:'feelsbadman',id:''};
+            if(!msg.client.cooldowns.get(this.name))
+            {
+                msg.client.cooldowns.set(this.name,new Discord.Collection());
+            }
+            const timestamps=msg.client.cooldowns.get(this.name);
+            if(!msg.client.results.get('duel'))
+            {
+                msg.client.results.set('duel',new Discord.Collection());
+            }
+            const record=msg.client.results.get('duel');
+            if(record.has(`${serverId}&${userId}`)){
+                const duel=record.get(`${serverId}&${userId}`);
+                const challengerId=duel.userId;
+                const challengerMember=await msg.guild.members.fetch(challengerId);
+                const challengerName=challengerMember.displayName;
+                const points=duel.points;
+                record.delete(`${serverId}&${userId}`);
+                const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points}`,`${serverId}&${challengerId}`]);
+                        if(res.rowCount<=0){
+                            await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${challengerId}`,`${guildName}`,`${points}`]);
+                        }
+                msg.channel.send(`${guildName} denied ${challengerName}'s challenge to a duel <:${feelsbadman.name}:${feelsbadman.id}`);
+            }
+            else{
+                msg.channel.send('There\'s no one challenging you at the moment');
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+        }
     }
-    
 }
