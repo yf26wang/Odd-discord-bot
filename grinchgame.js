@@ -236,17 +236,17 @@ class Player{
         this.surrender=false;
         this.summaryMsgMap=new Discord.Collection();
         const responses1=[new Response('normal',65,(action,response)=>{
-            let damage=action.self.attack+Math.floor((Math.random()-0.5)*4);
+            let damage=action.self.attack+Math.floor((Math.random())*4);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`it hits the ${action.target.name}, dealing ${damage} damage.`;
         }),new Response('miss',10,(action,response)=>{
             response.resultMsg=`but it missed.`;
         }),new Response('critical strike',20,(action,response)=>{
-            let damage=(action.self.attack*2+Math.floor((Math.random()-0.5)*8));
+            let damage=(action.self.attack*2+Math.floor((Math.random())*6));
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`the attack struck the ${action.target.name} critically, dealing ${damage} damage`;
         }),new Response('block',10,(action,response)=>{
-            let damage=Math.ceil(action.self.attack/2)+Math.floor((Math.random()-0.5)*4);
+            let damage=Math.ceil(action.self.attack/2)+Math.floor((Math.random())*4);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`but it was blocked by the ${action.target.name}, only dealing ${damage} damage`;
         }),new Response('reflect',5,(action,response)=>{
