@@ -399,6 +399,7 @@ class Game{
         this.msg=this.embed.setFooter('React with ➡️ to start');
         this.embed.setImage('https://i.imgur.com/nWFIJCF.gif');
         this.embed.setTitle('A wild Grinch appears!');
+        this.embed.setColor(0xf84343);
         this.msg= await this.channel.send(this.embed);
         await this.msg.react('➡️');
         const next= await this.msg.awaitReactions(filter,{max:1,time:600000,errors:['time']});
@@ -798,6 +799,6 @@ module.exports={
         const grinch=new Grinch(player);
         const game=new Game(player,grinch,channel);
         await updatePoints(`${serverId}&${userId}`,`${guildName}`,`${-cost}`,player.summaryMsgMap,'as base cost');
-        game.startGame(grinch,player);
+        game.startGame();
     }
 }

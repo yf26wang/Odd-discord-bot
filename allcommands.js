@@ -106,6 +106,7 @@ commands= {
     accept:require('./pointscommands.js').accept,
     deny:require('./pointscommands.js').deny,
     grinch:require('./grinchgame.js'),
+    challenge:require('./duelgame.js'),
     helpCommand:{
         name:'help',
         description:"Provides information on commands and their usage",

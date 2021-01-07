@@ -301,11 +301,11 @@ module.exports={
     },
     duel:{
         name:'duel',
-        description:'challenges another player to a duel',
-        usage:'duel <user mention> <points>',
-        category:'points',
+        description:'Challenges another player to a duel, can specify type between normal duel and versus (vs) duel',
+        usage:`duel <user mention> <points> <type (optional)>\n(e.g. ${PREFIX}duel @someone 100, ${PREFIX}duel @someone 400 normal, ${PREFIX}duel @someone 300 vs)`,
+        category:'Points',
         status:true,
-        argsRequired:[2],
+        argsRequired:[2,3],
         async code(msg,args){
             const serverId=msg.guild.id;
             const userId=msg.author.id;
@@ -313,6 +313,7 @@ module.exports={
             const userMention=msg.mentions.users.first();
             const points=args[1];
             const currentTime=Date.now();
+            let vs=false;
             const feelsgoodman=msg.guild.emojis.cache.find((emote)=>{
                 return emote.name==='feelsgoodman';
             }) || {name:'feelsgoodman',id:''};
@@ -356,16 +357,30 @@ module.exports={
                     msg.channel.send('You do not have that many points');
                 }
             else if(record.has(`${serverId}&${mentionId}`)){
-                msg.channel.send('This player is already being challenged, wait for them to accept current duel');
+                msg.channel.send('This player is already being challenged, wait for them to finish the current duel');
             }
             else{
-                record.set(`${serverId}&${mentionId}`,{userId:userId,points:points,time:currentTime});
+                if(args.length==3){
+                    if(args[2]=='vs')
+                    vs=true;
+                    else if(args[2]=='normal')
+                    vs=false;
+                    else{
+                        msg.channel.send(`Invalid duel type.\nValid types: normal (default), vs`);
+                        return;
+                    }
+                }
+                record.set(`${serverId}&${mentionId}`,{userId:userId,points:points,time:currentTime,vs:vs,accepted:false});
                 await db.query('UPDATE points SET points=points-$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
+                if(!vs)
                 msg.channel.send(`${guildName} is challenging ${mentionName} to a duel of ${points} points. <:${pagchomp.name}:${pagchomp.id}> Use ${PREFIX}accept or ${PREFIX}deny within two minutes to accept or deny`);
+                else
+                msg.channel.send(`${guildName} is challenging ${mentionName} to a versus duel of ${points} points. <:${pagchomp.name}:${pagchomp.id}> Use ${PREFIX}accept or ${PREFIX}deny within two minutes to accept or deny`);
             }
+            if(!vs){
             setTimeout(async ()=>{
                 if(record.has(`${serverId}&${mentionId}`)){
-                    console.log('run');
+                    //console.log('run');
                     const duel=record.get(`${serverId}&${mentionId}`);
                     if(duel.userId==userId&&duel.points==points&&duel.time==currentTime){
                     record.delete(`${serverId}&${mentionId}`);
@@ -378,16 +393,18 @@ module.exports={
                 }
             },120000);
         }
+        }
     },
     accept:{
         name:'accept',
-        description:'accepts someone\'s request to duel',
+        description:'Accepts someone\'s request to duel',
         usage:'accept',
-        category:'points',
+        category:'Points',
         status:true,
         argsRequired:[0],
         async code(msg,args){
             const serverId=msg.guild.id;
+            const user=msg.author;
             const userId=msg.author.id;
             const guildName=msg.member.displayName;
             const feelsgoodman=msg.guild.emojis.cache.find((emote)=>{
@@ -406,19 +423,20 @@ module.exports={
                 msg.client.results.set('duel',new Discord.Collection());
             }
             const record=msg.client.results.get('duel');
-            console.log(record);
+            //console.log(record);
             if(record.has(`${serverId}&${userId}`)){
                 const duel=record.get(`${serverId}&${userId}`);
                 const challengerId=duel.userId;
                 const challengerMember=await msg.guild.members.fetch(challengerId);
+                const challengerUser=challengerMember.user;
                 const challengerName=challengerMember.displayName;
                 const points=duel.points;
+                const vs=duel.vs;
                 const res=await db.query('SELECT points FROM points WHERE id=$1',[`${serverId}&${userId}`]);
                 let currentPoints=0;
                 if(res.rowCount){
                     currentPoints=res.rows[0].points;
                 }
-                console.log(currentPoints);
                 if(currentPoints<points){
                     record.delete(`${serverId}&${userId}`);
                     msg.channel.send('You do not have enough points the accept the duel, the duel is cancelled');
@@ -428,6 +446,7 @@ module.exports={
                         }
                     return;
                 }
+                if(!vs){
                 const result=Math.random()<0.5 ? 'challenger':'receiver';
                 if(result=='challenger'){
                     const res1=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*3}`,`${serverId}&${challengerId}`]);
@@ -450,15 +469,27 @@ module.exports={
                 record.delete(`${serverId}&${userId}`);
             }
             else{
+                const {RandDescription,Player,Action,Game,Response}=require('./duelgame.js');
+                const duel=record.get(`${serverId}&${userId}`);
+                duel.accepted=true;
+                record.set(`${serverId}&${userId}`,duel);
+                await db.query('UPDATE points SET points=points-$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
+                const player1=new Player(guildName,user,challengerName,serverId);
+                const player2=new Player(challengerName,challengerUser,guildName,serverId);
+                const game=new Game(player1,player2,duel.points,msg.channel);
+                game.startGame();
+            }
+            }
+            else{
                 msg.channel.send('There\'s no one challenging you at the moment');
             }
         }
     },
     cancelduel:{
         name:'cancelduel',
-        description:'cancels your request to duel the tagged user, if no users are tagged, removes all outstanding duel requests you currently have',
+        description:'Cancels your request to duel the tagged user, if no users are tagged, removes all outstanding duel requests you currently have',
         usage:'cancelduel <user mention (optional)>',
-        category:'points',
+        category:'Points',
         status:true,
         argsRequired:[0,1],
         async code(msg,args){
@@ -478,7 +509,7 @@ module.exports={
             const record=msg.client.results.get('duel');
             if(args.length===0){
                 record.forEach(async(duel,key,map)=>{
-                    if(duel.userId==userId){
+                    if(duel.userId==userId&&duel.accepted==false){
                         const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${duel.points}`,`${serverId}&${userId}`]);
                         if(res.rowCount<=0){
                             await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${duel.points}`]);
@@ -498,15 +529,15 @@ module.exports={
                 const mentionMember= await msg.guild.members.fetch(mentionId);
                 const mentionName= mentionMember.displayName;
                 record.forEach(async(duel,key,map)=>{
-                    if(duel.userId==userId&&key==`${serverId}&${mentionId}`){
+                    if(duel.userId==userId&&key==`${serverId}&${mentionId}`&&duel.accepted==false){
                         const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${duel.points}`,`${serverId}&${userId}`]);
                         if(res.rowCount<=0){
                             await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${duel.points}`]);
                         }
                         map.delete(key);
+                        msg.channel.send('Duel request against '+mentionName+' cancelled');
                     }
                 });
-                msg.channel.send('Duel request against '+mentionName+' cancelled');
             }
         }
         catch(err){
@@ -516,9 +547,9 @@ module.exports={
     },
     deny:{
         name:'deny',
-        description:'deny someone\'s request to duel you',
+        description:'Deny someone\'s request to duel you',
         usage:'deny',
-        category:'points',
+        category:'Points',
         status:true,
         argsRequired:[0],
         async code(msg,args){
@@ -541,6 +572,10 @@ module.exports={
             const record=msg.client.results.get('duel');
             if(record.has(`${serverId}&${userId}`)){
                 const duel=record.get(`${serverId}&${userId}`);
+                if(duel.accepted){
+                    msg.channel.send('There\'s no one challenging you at the moment');
+                    return;
+                }
                 const challengerId=duel.userId;
                 const challengerMember=await msg.guild.members.fetch(challengerId);
                 const challengerName=challengerMember.displayName;
@@ -550,7 +585,7 @@ module.exports={
                         if(res.rowCount<=0){
                             await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${challengerId}`,`${guildName}`,`${points}`]);
                         }
-                msg.channel.send(`${guildName} denied ${challengerName}'s challenge to a duel <:${feelsbadman.name}:${feelsbadman.id}`);
+                msg.channel.send(`${guildName} denied ${challengerName}'s challenge to a duel <:${feelsbadman.name}:${feelsbadman.id}>`);
             }
             else{
                 msg.channel.send('There\'s no one challenging you at the moment');
