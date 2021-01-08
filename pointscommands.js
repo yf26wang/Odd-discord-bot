@@ -328,7 +328,7 @@ module.exports={
                 return;
             }
             if((!(parseInt(points)))||points<0){
-                msg.channel.send('Please provide a valid number of points\nUsage:'+PREFIX+this.usage);
+                msg.channel.send('Please provide a valid number of points\nUsage: '+PREFIX+this.usage);
                 return;
             }
             const mentionId=userMention.id;
@@ -449,7 +449,7 @@ module.exports={
                 if(!vs){
                 const result=Math.random()<0.5 ? 'challenger':'receiver';
                 if(result=='challenger'){
-                    const res1=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*3}`,`${serverId}&${challengerId}`]);
+                    const res1=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*2}`,`${serverId}&${challengerId}`]);
                     if(res1.rowCount<=0){
                         await db.query('INSERT INTO points VALUES ($1,$2,$3)'[`${serverId}&${challengerId}`,`${challengerName}`,`${points*2}`]);
                     }
@@ -457,14 +457,14 @@ module.exports={
                     if(res2.rowCount<=0){
                         await db.query('INSERT INTO points VALUES ($1,$2,$3)'[`${serverId}&${userId}`,`${guildName}`,`0`]);
                     }
-                    msg.channel.send(`${challengerName} won the duel against ${guildName} <:${pagchomp.name}:${pagchomp.id}> ${challengerName} won ${points*3} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
+                    msg.channel.send(`${challengerName} won the duel against ${guildName} <:${pagchomp.name}:${pagchomp.id}> ${challengerName} won ${points*2} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
                 }
                 else if(result=='receiver'){
-                    const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points*2}`,`${serverId}&${userId}`]);
+                    const res=await db.query('UPDATE points SET points=points+$1 WHERE id=$2',[`${points}`,`${serverId}&${userId}`]);
                     if(res.rowCount<=0){
-                        await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${points*2}`]);
+                        await db.query('INSERT INTO points VALUES ($1,$2,$3)',[`${serverId}&${userId}`,`${guildName}`,`${points}`]);
                     }
-                    msg.channel.send(`${guildName} won the duel against ${challengerName} <:${pagchomp.name}:${pagchomp.id}> ${guildName} won ${points*3} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
+                    msg.channel.send(`${guildName} won the duel against ${challengerName} <:${pagchomp.name}:${pagchomp.id}> ${guildName} won ${points*2} points! <:${feelsgoodman.name}:${feelsgoodman.id}>`);
                 }
                 record.delete(`${serverId}&${userId}`);
             }

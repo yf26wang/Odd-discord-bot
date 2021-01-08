@@ -493,7 +493,7 @@ class Game{
             this.summary.setDescription(`${this.player1.name} went Afk`);
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
             let player1Points=0;
             let player2Points=0;
             let res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player1.user.id}`]);
@@ -538,7 +538,7 @@ class Game{
             this.summary.setDescription(`${this.player2.name} went Afk`);
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
             let player1Points=0;
             let player2Points=0;
             let res= await db.query('SELECT points FROM points WHERE id=$1',[`${this.channel.guild.id}&${this.player1.user.id}`]);
@@ -571,7 +571,7 @@ class Game{
             returnData.endingMsg+='Final Blow';
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
             winner=2;
         }
         else if(this.player2.isDefeated()){
@@ -580,7 +580,7 @@ class Game{
             returnData.endingMsg+='Final Blow';
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
             winner=1;
         }
         else if(this.player1.surrender){
@@ -589,7 +589,7 @@ class Game{
             returnData.endingMsg+='Final Action';
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player2.user.id}`,`${this.player2.name}`,`${this.points}`,this.player2.summaryMsgMap,`as duels bonus`);
             winner=2;
         }
         else if(this.player2.surrender){
@@ -598,7 +598,7 @@ class Game{
             returnData.endingMsg+='Final Action';
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`that were originally yours back`);
             await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`from winning the duel`);
-            await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
+            //await updatePoints(`${this.channel.guild.id}&${this.player1.user.id}`,`${this.player1.name}`,`${this.points}`,this.player1.summaryMsgMap,`as duels bonus`);
             winner=1;
         }
         if(returnData.returnMsg){
