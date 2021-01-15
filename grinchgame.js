@@ -228,7 +228,7 @@ class Player{
     constructor(name,user,serverId){
         this.name=name;
         this.user=user;
-        this.attack=5;
+        this.attack=4;
         this.health=30;
         this.points;
         this.serverId=serverId;
@@ -324,7 +324,7 @@ class Player{
         })];
         const action4=new Action('Taunt','Taunt the Grinch',new RandDescription(`${this.name} taunts the Grinch, `),responses4);
         const responses5=[new Response('success',70,(action,response)=>{
-            const heal=this.attack*2+Math.floor((Math.random()-0.5)*4);
+            const heal=this.attack*2+Math.floor((Math.random())*4);
             action.self.heal(heal);
             response.resultMsg=` and restores ${heal} health`;
         }),new Response('mini heal',15,(action,response)=>{
@@ -332,7 +332,7 @@ class Player{
             action.self.heal(heal);
             response.resultMsg=` but only restores ${heal} health`;
         }),new Response('crit heal',15,(action,response)=>{
-            const heal=this.attack*4+Math.floor((Math.random()-0.5)*4);
+            const heal=this.attack*4+Math.floor((Math.random())*4);
             action.self.heal(heal);
             response.resultMsg=`the brew was very effective, restoring ${heal} health`;
         })];
@@ -673,7 +673,7 @@ class Game{
         }
         else if(this.grinch.ranAway){
             const drop=pickWord(['potato','server heart']);
-            const points=300+Math.floor(Math.random()*50);
+            const points=100+Math.floor(Math.random()*50);
             returnData.returnMsg+=`The ${this.grinch.name} ran away, leaving behind a ${drop} worth ${points} points`;
             await updatePoints(`${this.player.serverId}&${this.player.user.id}`,`${this.player.name}`,`${points}`,this.player.summaryMsgMap,`from the ${drop}`);
             this.embed.setImage('https://i.imgur.com/9Xbk3pM.png');
