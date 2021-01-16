@@ -146,7 +146,7 @@ class Grinch{
     }
     getAction(turns){
         const determinant1=Math.random()*100;
-        if(determinant1<(turns*turns)/15){
+        if(determinant1<(turns*turns)/12){
             return this.actions[3];
         }
         if(this.health<10){
@@ -757,7 +757,7 @@ function pickWord(wordArray){
 
 module.exports={
     name:'grinch',
-    description:'Starts an attempt to fight the Grinch (costs 500 points)',
+    description:'Starts an attempt to fight the Grinch (costs 300 points)',
     usage:'grinch',
     category:'',
     status:true,
@@ -768,7 +768,7 @@ module.exports={
         const userId=msg.author.id;
         const guildName=msg.member.displayName;
         const channel=msg.channel;
-        const cost=500;
+        const cost=300;
         const db=require('./database.js');
         let currentPoints;
         try{
