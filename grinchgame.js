@@ -255,11 +255,11 @@ class Player{
             response.resultMsg=`but it was reflected by the Grinch, dealing ${damage} damage to ${action.self.name}!`
         })];
         const action1=new Action('Normal attack','Normal attack',new RandDescription(`${this.name} strikes the Grinch with &1, `,[['a sword','a knife','a shovel','a kendo stick','a firesword','an apple','a glass sword','the Ichimonji','a Dirk','a mango sword','the Indomptable']]),responses1);
-        const responses2=[new Response('normal',50,(action,response)=>{
-            let damage=action.self.attack*2+Math.floor((Math.random()-0.5)*6);
+        const responses2=[new Response('normal',45,(action,response)=>{
+            let damage=action.self.attack*2+Math.floor((Math.random()-0.5)*6)+2;
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`it hits the ${action.target.name}, dealing ${damage} damage`;
-        }),new Response('critical strike',10,(action,response)=>{
+        }),new Response('critical strike',15,(action,response)=>{
             let damage=action.self.attack*4+Math.floor((Math.random()-0.5)*12);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`the attack was a critical hit, dealing ${damage} to the ${action.target.name}`;
@@ -309,16 +309,16 @@ class Player{
             let damage=action.self.attack*3+Math.floor((Math.random()-0.5)*4);
             damage=action.target.takeDamage(damage,false);
             response.resultMsg=`the taunt hit the ${action.target.name} in the weak spot, hurting the ${action.target.name}'s feelings and dealing ${damage} damage to the ${action.target.name}`;
-        }),new Response('success',30,(action,response)=>{
+        }),new Response('success',60,(action,response)=>{
             action.target.buff=0.25;
             response.resultMsg=`the taunt makes the ${action.target.name} feel nervous, lowering the damage of his next attack significantly`;
         }),new Response('fails',5,(action,response)=>{
             response.resultMsg=`but it had no effect`;
-        }),new Response('taunts back',30,(action,response)=>{
+        }),new Response('taunts back',10,(action,response)=>{
             let damage=Math.floor(Math.random()*2)+1;
             damage=action.self.takeDamage(damage,false);
             response.resultMsg=`and the ${action.target.name} taunts ${action.self.name} back. ${pickWord(['Infuriated','Filled with rage','Angered','Annoyed','Enraged','Furious','Malding','Outraged','Fuming','Irritated','Frustrated'])}, ${action.self.name} hurts himself in confusion, taking ${damage} damage`;
-        }),new Response('absorbed',20,(action,response)=>{
+        }),new Response('absorbed',10,(action,response)=>{
             action.target.buff*=2;
             response.resultMsg=`the ${action.target.name} is enraged, buffing his next attack`;
         })];
