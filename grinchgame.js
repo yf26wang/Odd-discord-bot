@@ -9,10 +9,10 @@ class Grinch{
         this.chestDrops=[500,1000];
         this.buff=1;
         this.damageDrops=800;
-        this.defeatDrops=2500;
+        this.defeatDrops=1000;
         this.player=player;
         this.ranAway=false;
-        const responses1=[new Response('normal',60,(action,response)=>{
+        const responses1=[new Response('normal',70,(action,response)=>{
             let damage=action.self.attack+Math.floor((Math.random()-0.5)*5);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`and deals ${damage} damage to ${action.target.name}`;
@@ -20,16 +20,16 @@ class Grinch{
             let damage=action.self.attack*2+Math.floor((Math.random()-0.5)*5);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`the attack ${pickWord(['critically strikes'])}, dealing ${damage} damage to ${action.target.name}`;
-        }),new Response('miss',30,(action,response)=>{
+        }),new Response('miss',20,(action,response)=>{
             response.resultMsg=`but it missed!`
         })];
         const action1=new Action('Normal attack','normal attack',new RandDescription(`The grinch hits ${this.player.name} with &1, `,[['his hat','his bag','nothing']]),responses1);
         action1.chance=30;
-        const responses2=[new Response('normal',30,(action,response)=>{
+        const responses2=[new Response('normal',35,(action,response)=>{
             let damage=action.self.attack+3+Math.floor((Math.random()-0.5)*6);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`and deals ${damage} damage to ${action.target.name}`;
-        }),new Response('critical strike',10,(action,response)=>{
+        }),new Response('critical strike',15,(action,response)=>{
             let damage=action.self.attack+5+Math.floor((Math.random()-0.5)*12);
             damage=action.target.takeDamage(damage,true,action.self);
             response.resultMsg=`the attack was super effective, dealing ${damage} damage to ${action.target.name}`;
@@ -37,7 +37,7 @@ class Grinch{
             const heal=this.attack+Math.floor((Math.random()-0.5)*4);
             action.target.heal(heal);
             response.resultMsg=`but accidentally uses the wrong spell, healing ${action.target.name} for ${heal} health instead`;
-        }),new Response('miss',30,(action,response)=>{
+        }),new Response('miss',20,(action,response)=>{
             response.resultMsg=`but it missed!`;
         }),new Response('lifesteal',20,(action,response)=>{
             let damage=action.self.attack+Math.floor((Math.random()-0.5)*4);
@@ -73,11 +73,11 @@ class Grinch{
         action4.chance=0;
         const action5Word=pickWord(['cookies','cookies','chocolates','bananas','popsicles','icicles','oranges']);
         const responses5=[new Response('success',60,(action,response)=>{
-            const heal=action.self.attack+Math.floor((Math.random()-0.5)*4);
+            const heal=action.self.attack*2+Math.floor((Math.random()-0.5)*4);
             action.self.heal(heal);
             response.resultMsg=`and restores ${heal} health`;
         }),new Response('critical heal',10,(action,response)=>{
-            const heal=action.self.attack*2+Math.floor((Math.random()-0.5)*4);
+            const heal=action.self.attack*4+Math.floor((Math.random()-0.5)*4);
             action.self.heal(heal);
             response.resultMsg=`the ${action5Word} tasted exceptionally good, and restores ${heal} health`;
         }),new Response('fails',30,(action,response)=>{
@@ -150,12 +150,12 @@ class Grinch{
             return this.actions[3];
         }
         if(this.health<10){
-            if(determinant1<20){
+            if(determinant1<40){
                 return this.actions[4];
             }
         }
-        else if(this.health<40){
-            if(determinant1<10){
+        else if(this.health<30){
+            if(determinant1<20){
                 return this.actions[4];
             }
         }
@@ -757,7 +757,7 @@ function pickWord(wordArray){
 
 module.exports={
     name:'grinch',
-    description:'Starts an attempt to fight the Grinch (costs 300 points)',
+    description:'Starts an attempt to fight the Grinch (costs 500 points)',
     usage:'grinch',
     category:'',
     status:true,
@@ -768,7 +768,7 @@ module.exports={
         const userId=msg.author.id;
         const guildName=msg.member.displayName;
         const channel=msg.channel;
-        const cost=300;
+        const cost=500;
         const db=require('./database.js');
         let currentPoints;
         try{
