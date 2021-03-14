@@ -141,14 +141,21 @@ const realmeye={
                 if(emote==='⬅️'){
                     if(currentIndex>0){
                         currentIndex--;
-                        await profileMsg.edit(embedArray[currentIndex]);
                     }
+                    else{
+                        currentIndex=jsonRes.characters.length-1;
+                    }
+                    await profileMsg.edit(embedArray[currentIndex]);
+                    
                 }
                 else if(emote==='➡️'){
                     if(currentIndex<jsonRes.characters.length-1){
                         currentIndex++;
-                        await profileMsg.edit(embedArray[currentIndex]);
                     }
+                    else{
+                        currentIndex=0;
+                    }
+                    await profileMsg.edit(embedArray[currentIndex]);
                 }
             }
             }
