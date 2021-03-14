@@ -170,7 +170,7 @@ module.exports={
                 return emote.name==='feelsgoodman';
             }) || {name:'feelsgoodman',id:''};
             if((roulettePoints!=='all'&&(!(parseInt(roulettePoints))))||roulettePoints<0){
-                msg.channel.send(`Invalid usage\n Usage: -${this.usage}`);
+                msg.channel.send(`Invalid usage\n Usage: ${PREFIX}${this.usage}`);
                 return;
             }
             db.query('SELECT * FROM points WHERE id=$1',[`${serverId}&${userId}`],(err,res)=>{

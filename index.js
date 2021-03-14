@@ -28,6 +28,12 @@ client.on('ready', ()=>{
         //else
         //console.log(response);
     })
+    db.query("CREATE TABLE IF NOT EXISTS pets(id TEXT PRIMARY KEY, user_name TEXT, pet_name TEXT, sprite TEXT, lvl INTEGER, current_xp INTEGER, stats TEXT);",(error,response)=>{
+        if(error)
+        console.log(error)
+        //else
+        //console.log(response);
+    })
     /*if((storedimgs.get("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='imgs';"))==0)
     {
         storedimgs.run("CREATE TABLE imgs(id TEXT PRIMARY KEY, name TEXT, url TEXT);")

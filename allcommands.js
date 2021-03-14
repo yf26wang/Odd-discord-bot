@@ -107,6 +107,9 @@ commands= {
     deny:require('./pointscommands.js').deny,
     grinch:require('./grinchgame.js'),
     challenge:require('./duelgame.js'),
+    pet:require('./pets.js'),
+    realmeye:require('./realm.js').realmeye,
+    updateRealmSprites:require('./realm.js').updateRealmSprites,
     helpCommand:{
         name:'help',
         description:"Provides information on commands and their usage",
