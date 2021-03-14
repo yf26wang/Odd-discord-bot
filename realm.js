@@ -1,4 +1,5 @@
 const Discord=require('discord.js');
+const { json } = require('mathjs');
 const fetch= require('node-fetch');
 const db=require('./database.js');
 
@@ -95,9 +96,16 @@ const realmeye={
         const jsonRes= await res.json();
         if(jsonRes.error)
             throw new Error(jsonRes.error);
+            if(jsonRes.characters.length==0){
+                embed.setAuthor(`${jsonRes.player}'s characters`,getStarRank(jsonRes.rank),realmeyeUrl+jsonRes.player);
+                embed.setTitle('No characters found..');
+                embed.setImage('https://i.imgur.com/5zip8Yz.png');
+                profileMsg.edit(embed);
+                return;
+            }
             const embedArray= await Promise.all(jsonRes.characters.map(async (character,index)=>{
                 const characterEmbed= new Discord.MessageEmbed();
-                characterEmbed.setAuthor(`${jsonRes.player}'s characters`,getStarRank(jsonRes.rank),realmeyeUrl+jsonRes.player)
+                characterEmbed.setAuthor(`${jsonRes.player}'s characters`,getStarRank(jsonRes.rank),realmeyeUrl+jsonRes.player);
                 characterEmbed.setTitle(`${getTitleCharacters(jsonRes.characters,index)}`);
                 const spriteRes= await db.query('SELECT * FROM realm_skin_ids JOIN realm_skin_sprites ON realm_skin_ids.name=realm_skin_sprites.name WHERE realm_skin_ids.id=$1;',[`${character.data_skin_id}`]);
                 if(spriteRes.rowCount){
@@ -169,7 +177,7 @@ const realmeye={
         catch(err){
             msg.client.cooldowns.set(this.name,(msg.client.cooldowns.get(this.name)-1));
             //check if player not found
-            //console.log(err);
+            console.log(err);
             if(err.message.includes('could not be found'))
             embed.setTitle(err.message);
             else
