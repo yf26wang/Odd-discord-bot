@@ -240,6 +240,7 @@ const updateRealmSprites={
                         }
                     }
                 }
+                msg.channel.send('ids updated!');
             }
             else if(args[0]=='sprites'){
                 await db.query('CREATE TABLE IF NOT EXISTS realm_skin_sprites(name TEXT, sprite_url TEXT);');
@@ -267,6 +268,7 @@ const updateRealmSprites={
                     const res= await db.query('INSERT INTO realm_skin_sprites VALUES($1,$2);',[name,sprite]);
                     }
                 }
+                msg.channel.send('sprites updated!')
             }
             else if(args[0]=='petSprites'){
                 await db.query('CREATE TABLE IF NOT EXISTS realm_pet_sprites(name TEXT, sprite_url TEXT);');
@@ -295,6 +297,10 @@ const updateRealmSprites={
                     const res= await db.query('INSERT INTO realm_pet_sprites VALUES($1,$2);',[name,sprite]);
                     }
                 }
+                msg.channel.send('pet sprites updated!')
+            }
+            else if(args[0]=='list'){
+                msg.channel.send('ids\nsprites\npetSprites');
             }
         }
         catch(err){
