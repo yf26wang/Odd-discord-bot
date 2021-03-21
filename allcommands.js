@@ -110,6 +110,7 @@ commands= {
     pet:require('./pets.js'),
     realmeye:require('./realm.js').realmeye,
     updateRealmSprites:require('./realm.js').updateRealmSprites,
+    play:require('./audio.js'),
     helpCommand:{
         name:'help',
         description:"Provides information on commands and their usage",
