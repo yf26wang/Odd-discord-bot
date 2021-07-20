@@ -258,7 +258,7 @@ module.exports={
                         const firstRowId=res.rows[0].id;
                         const firstplaceId=firstRowId.substring(firstRowId.indexOf('&')+1);
                         let firstplace;
-                        let firstplaceAvatar
+                        let firstplaceAvatar;
                         try{
                         firstplace= await msg.guild.members.fetch(firstplaceId);
                         firstplace= firstplace.user;
@@ -297,6 +297,40 @@ module.exports={
             //const exampleEmbed=new Discord.MessageEmbed();
             
             
+        }
+    },
+    updateLeaderboard:{
+        name:'updateLeaderboard',
+        description:'updates any changed user names and members who have left the server on the points leaderboard',
+        usage:'updateLeaderboard',
+        category:"Points",
+        status:true,
+        argsRequired:[0],
+        async code(msg,args){
+            try{
+            const serverId=msg.guild.id;
+            const res= await db.query('SELECT * FROM points WHERE id LIKE $1',[`${serverId}%`]);
+            await Promise.all(res.rows.map(async (element)=>{
+                const id= element.id;
+                const userId= id.substring(id.indexOf('&')+1);
+                const name= element.name;
+                try{
+                    const guildmember= await msg.guild.members.fetch(userId);
+                    if(guildmember.displayName!=name)
+                    await db.query('UPDATE points SET name=$1 WHERE id=$2',[guildmember.displayName,id]);
+                }
+                catch(error){
+                    console.log(error);
+                    if(error.name=='DiscordAPIError'&&error.message=='Unknown User')
+                    await db.query('DELETE FROM points WHERE id=$1',[id]);
+                }
+            }));
+            msg.channel.send('Leaderboard has been updated!');
+        }
+        catch(error){
+            console.log(error);
+            msg.channel.send('error');
+        }
         }
     },
     duel:{
