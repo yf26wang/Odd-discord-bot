@@ -320,8 +320,8 @@ module.exports={
                     await db.query('UPDATE points SET name=$1 WHERE id=$2',[guildmember.displayName,id]);
                 }
                 catch(error){
-                    console.log(error);
-                    if(error.name=='DiscordAPIError'&&error.message=='Unknown User')
+                    console.log(error.message);
+                    if(error.name=='DiscordAPIError'&&error.message=='Unknown Member')
                     await db.query('DELETE FROM points WHERE id=$1',[id]);
                 }
             }));
